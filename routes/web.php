@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\SertifikatController;
 use App\Http\Controllers\SiswaController;
 use Illuminate\Support\Facades\Route;
@@ -9,48 +11,70 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::view('/tim-pengembang', 'tim')->name('tim.profil');
+
 Route::get('/pencarian-sertifikat', function () {
     return view('sertiuser.index');
 })->name('pencarian.sertifikat');
 
-// Halaman tambah sertifikat
-Route::get('/tambah-sertifikat', [SertifikatController::class, 'create'])
-    ->middleware(['auth', 'verified'])
-    ->name('tambah.sertifikat');
+Route::get('/laporan', [LaporanController::class, 'publicForm'])->name('laporan.public.form');
+Route::post('/laporan', [LaporanController::class, 'publicStore'])->name('laporan.public.store');
 
-// Halaman form upload foto sertifikat
-Route::get('/sertifikat/upload', function () {
-    return view('sertifikat.upload');
-})->middleware(['auth', 'verified'])->name('sertifikat.upload');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [SertifikatController::class, 'index'])->name('dashboard');
 
-// Proses simpan foto sertifikat
-Route::post('/sertifikat/upload', [SertifikatController::class, 'storePhoto'])
-    ->middleware(['auth', 'verified'])
-    ->name('sertifikat.upload.post');
-Route::get('/siswa/{id}', [SiswaController::class, 'show'])->name('siswa.detail');
+    Route::get('/tambah-sertifikat', [SertifikatController::class, 'create'])->name('tambah.sertifikat');
 
-// Dashboard ambil data sertifikat terbaru
-Route::get('/dashboard', [SertifikatController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+    Route::get('/sertifikat/upload', function () {
+        return view('sertifikat.upload');
+    })->name('sertifikat.upload');
 
-Route::get('/sertifikat/import/template', [SertifikatController::class, 'downloadTemplate'])
-    ->name('sertifikat.import.template');
+    Route::post('/sertifikat/upload', [SertifikatController::class, 'storePhoto'])->name('sertifikat.upload.post');
+    Route::post('/sertifikat/upload-massal', [SertifikatController::class, 'uploadMassal'])->name('sertifikat.upload.massal');
 
-Route::post('/sertifikat/upload-massal', [SertifikatController::class, 'uploadMassal'])->name('sertifikat.upload.massal');
+    Route::prefix('sertifikat')->name('sertifikat.')->group(function () {
+        Route::get('create', [SertifikatController::class, 'create'])->name('create');
+        Route::post('store', [SertifikatController::class, 'store'])->name('store');
+        Route::post('bulk-store', [SertifikatController::class, 'bulkStore'])->name('bulk-store');
+        Route::get('{sertifikat}/edit', [SertifikatController::class, 'edit'])->name('edit');
+        Route::put('{sertifikat}', [SertifikatController::class, 'update'])->name('update');
+        Route::delete('{sertifikat}', [SertifikatController::class, 'destroy'])->name('destroy');
+    });
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::prefix('siswa')->name('siswa.')->group(function () {
+        Route::get('', [SiswaController::class, 'index'])->name('index');
+        Route::get('create', [SiswaController::class, 'create'])->name('create');
+        Route::post('', [SiswaController::class, 'store'])->name('store');
+        Route::delete('bulk-destroy', [SiswaController::class, 'bulkDestroy'])->name('bulk-destroy');
+        Route::post('bulk-promote', [SiswaController::class, 'bulkPromote'])->name('bulk-promote');
+        Route::get('{siswa}', [SiswaController::class, 'show'])->name('show');
+        Route::get('{siswa}/edit', [SiswaController::class, 'edit'])->name('edit');
+        Route::put('{siswa}', [SiswaController::class, 'update'])->name('update');
+        Route::delete('{siswa}', [SiswaController::class, 'destroy'])->name('destroy');
+    });
+
     Route::get('/sertifikat/import', [SiswaController::class, 'importForm'])->name('sertifikat.import.form');
     Route::post('/sertifikat/import', [SiswaController::class, 'importExcel'])->name('sertifikat.import.excel');
     Route::get('/sertifikat/preview', [SiswaController::class, 'previewImport'])->name('sertifikat.preview');
     Route::post('/sertifikat/confirm-import', [SiswaController::class, 'confirmImport'])->name('sertifikat.import.confirm');
-    Route::get('/sertifikat/create', [SertifikatController::class, 'create'])->name('sertifikat.create');
-    Route::post('/sertifikat/store', [SertifikatController::class, 'store'])->name('sertifikat.store');
 
+    Route::middleware('can:manage-users')->group(function () {
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::post('/users', [UserController::class, 'store'])->name('users.store');
+        Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::get('/laporan-admin', [LaporanController::class, 'index'])->name('laporan.index');
+        Route::get('/laporan-admin/{laporan}', [LaporanController::class, 'show'])->name('laporan.show');
+        Route::post('/laporan-admin/{laporan}/reply', [LaporanController::class, 'reply'])->name('laporan.reply');
+        Route::patch('/laporan-admin/{laporan}/status', [LaporanController::class, 'updateStatus'])->name('laporan.update-status');
+    });
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::get('/sertifikat/import/template', [SertifikatController::class, 'downloadTemplate'])
+    ->name('sertifikat.import.template');
 
 // Route baru untuk pencarian
 Route::get('/cari-sertifikat', [SertifikatController::class, 'search'])->name('sertifikat.search');
@@ -58,15 +82,9 @@ Route::post('/cari-sertifikat', [SertifikatController::class, 'doSearch'])->name
 
 // API Routes untuk AJAX
 Route::post('/api/sertifikat/search', [SertifikatController::class, 'searchApi'])->name('sertifikat.search.api');
-Route::get('/sertifikat/{id}', [SertifikatController::class, 'show'])->name('sertifikat.show');
+Route::get('/sertifikat/{sertifikat}', [SertifikatController::class, 'show'])->name('sertifikat.show');
+Route::get('/sertifikat/{sertifikat}/kartu', [SertifikatController::class, 'card'])->name('sertifikat.card');
 Route::post('/api/sertifikat/verify', [SertifikatController::class, 'verify'])->name('sertifikat.verify');
 
-
-// edit form
-Route::get('/sertifikat/{id}/edit', [SertifikatController::class, 'edit'])->name('sertifikat.edit');
-// update data
-Route::put('/sertifikat/{id}', [SertifikatController::class, 'update'])->name('sertifikat.update');
-// hapus data
-Route::delete('/sertifikat/{id}', [SertifikatController::class, 'destroy'])->name('sertifikat.destroy');
 
 require __DIR__ . '/auth.php';

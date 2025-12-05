@@ -41,5 +41,56 @@
                 {{ $slot }}
             </main>
         </div>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const attachConfirm = (form) => {
+                    if (form.dataset.swalBound === 'true') {
+                        return;
+                    }
+
+                    form.dataset.swalBound = 'true';
+                    const message = form.dataset.swalConfirm || 'Apakah Anda yakin ingin melanjutkan tindakan ini?';
+
+                    form.addEventListener('submit', function (event) {
+                        if (form.dataset.swalConfirmed === 'true') {
+                            return;
+                        }
+
+                        event.preventDefault();
+
+                        Swal.fire({
+                            title: 'Konfirmasi Tindakan',
+                            text: message,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#6b7280',
+                            confirmButtonText: 'Ya, lanjutkan',
+                            cancelButtonText: 'Batal',
+                            customClass: {
+                                popup: 'rounded-2xl',
+                                confirmButton: 'rounded-xl px-4 py-2 font-semibold',
+                                cancelButton: 'rounded-xl px-4 py-2 font-semibold',
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                form.dataset.swalConfirmed = 'true';
+                                form.submit();
+                            }
+                        });
+                    });
+                };
+
+                document.querySelectorAll('form[data-swal-confirm]').forEach(form => attachConfirm(form));
+
+                document.addEventListener('swal:bind', (event) => {
+                    const form = event.target;
+                    if (form.matches && form.matches('form[data-swal-confirm]')) {
+                        attachConfirm(form);
+                    }
+                }, true);
+            });
+        </script>
     </body>
 </html>

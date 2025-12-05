@@ -8,44 +8,42 @@
                 open = JSON.parse(localStorage.getItem('sidebarOpen'));
             });
         "
-        :class="open ? 'ml-64' : 'ml-16'"
+        :class="open ? 'ml-64' : ''"
         class="transition-all duration-300"
     >
 
-        <div class="relative py-12 min-h-screen bg-gradient-to-br from-indigo-100 via-white to-blue-100 overflow-hidden flex items-center justify-center">
-            <div class="absolute inset-0 opacity-20 bg-[url('https://www.toptal.com/designers/subtlepatterns/uploads/dot-grid.png')]"></div>
-            <div class="absolute -top-20 -left-20 w-72 h-72 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
-            <div class="absolute bottom-0 right-0 w-96 h-96 bg-orange-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
-            <div class="absolute inset-0">
-                <img src="/images/pattern.png" alt="Background Pattern" class="w-full h-full object-cover opacity-20 pointer-events-none">
-            </div>
+        <main class="pt-24 pb-12 px-4 sm:px-6 lg:px-10 max-w-7xl mx-auto space-y-6">
+            <header>
+                <h1 class="text-2xl font-semibold text-gray-900">Import Sertifikat dari Excel</h1>
+                <p class="mt-1 text-sm text-gray-500">
+                    Unggah file Excel berisi data sertifikat siswa untuk diproses secara massal.
+                </p>
+            </header>
 
-            <div class="relative w-full max-w-3xl sm:px-6 lg:px-8">
-                <div class="backdrop-blur-xl bg-white/80 border border-transparent bg-clip-padding rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 p-[1px] bg-gradient-to-r from-indigo-200 to-blue-200">
-                    <div class="p-8 sm:px-16 bg-white/90 rounded-2xl">
-                        
-                        <h2 class="text-3xl font-extrabold text-gray-800 mb-8 text-center tracking-wide">
-                            Unggah File Excel Sertifikat
-                        </h2>
+            <div class="w-full">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 px-6 py-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">
+                        Unggah File Excel Siswa
+                    </h2>
 
                         {{-- Alert Success --}}
                         @if (session('success'))
-                            <div class="bg-green-50 border border-green-400 text-green-800 px-4 py-3 rounded-xl relative mb-6 shadow-sm animate-fade-in">
-                                <span class="block sm:inline font-semibold">{{ session('success') }}</span>
+                            <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-lg mb-4 text-sm">
+                                <span class="font-semibold">{{ session('success') }}</span>
                             </div>
                         @endif
 
                         {{-- Alert Error --}}
                         @if (session('error'))
-                            <div class="bg-red-50 border border-red-400 text-red-800 px-4 py-3 rounded-xl relative mb-6 shadow-sm animate-fade-in">
-                                <span class="block sm:inline font-semibold">{{ session('error') }}</span>
+                            <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-4 text-sm">
+                                <span class="font-semibold">{{ session('error') }}</span>
                             </div>
                         @endif
 
                         {{-- Form Import --}}
                         <form action="{{ route('sertifikat.import.excel') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                             @csrf
-                            <div>
+                            <div class="space-y-2">
                                 <label for="file" class="block text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="20" height="20">
                                         <path fill="#185c37" d="M42,4H14c-1.1,0-2,0.9-2,2v36c0,1.1,0.9,2,2,2h28c1.1,0,2-0.9,2-2V6C44,4.9,43.1,4,42,4z" />
@@ -56,15 +54,15 @@
                                 </label>
 
                                 <input type="file" name="file" id="file"
-                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-white/80 focus:outline-none focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 p-3 shadow-sm hover:shadow-md transition-all duration-200"
+                                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-white focus:outline-none focus:border-orange-500 focus:ring focus:ring-orange-200 focus:ring-opacity-50 p-3 shadow-sm"
                                     required>
                                 @error('file')
                                     <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
                                 @enderror
                             </div>
-                            <div class="flex items-center justify-end">
+                            <div class="flex items-center justify-end pt-4">
                                 <a href="{{ route('sertifikat.import.template') }}" 
-                                   class="inline-flex items-center px-6 py-3 bg-gray-500 border border-transparent rounded-xl font-semibold text-sm text-white uppercase tracking-wider shadow-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transform hover:-translate-y-0.5 transition-all duration-200 mr-4">
+                                   class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-lg font-medium text-xs text-white tracking-wide shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition-all duration-150 mr-3">
                                     <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                                     </svg>
@@ -72,7 +70,7 @@
                                 </a>
 
                                 <button type="submit"
-                                    class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 border border-transparent rounded-xl font-semibold text-sm text-white uppercase tracking-wider shadow-md hover:from-indigo-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 transform hover:-translate-y-0.5 transition-all duration-200">
+                                    class="inline-flex items-center px-5 py-2.5 bg-orange-500 border border-transparent rounded-lg font-semibold text-xs text-white tracking-wide shadow-sm hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 transition-all duration-150">
                                     <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -87,20 +85,6 @@
             </div>
         </div>
 
-        <style>
-            @keyframes fade-in {
-                from {
-                    opacity: 0;
-                    transform: translateY(-5px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            .animate-fade-in {
-                animation: fade-in 0.4s ease-out;
-            }
-        </style>
+        </main>
     </div>
 </x-app-layout>

@@ -7,43 +7,65 @@
                 open = JSON.parse(localStorage.getItem('sidebarOpen'));
             });
         "
-        :class="open ? 'ml-64' : 'ml-16'"
+        :class="open ? 'ml-64' : ''"
         class="transition-all duration-300">
 
-        <main class="py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-            <a href="{{ route('dashboard') }}" class="inline-flex items-center text-gray-600 hover:text-blue-600 mb-6 group transition-colors duration-200">
+        <main class="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
+            <a href="{{ route('siswa.index') }}" class="inline-flex items-center text-gray-500 hover:text-orange-600 group transition-colors duration-200 text-sm">
                 <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                 </svg>
-                Kembali ke Dashboard
+                Kembali ke daftar siswa
             </a>
 
             <!-- siswa card -->
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-8">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-4">
-                        <div class="h-20 w-20 rounded-full bg-blue-100 flex items-center justify-center">
-                            <span class="text-blue-600 text-2xl font-bold">
-                                {{ strtoupper(substr($siswa->nama, 0, 2)) }}
-                            </span>
-                        </div>
-                        <div>
-                            <h1 class="text-2xl font-bold text-gray-900">{{ $siswa->nama }}</h1>
-                            <p class="text-gray-500">NIS: {{ $siswa->nis }}</p>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                    <div class="space-y-2">
+                        <h1 class="text-2xl font-bold text-gray-900">{{ $siswa->nama }}</h1>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 text-sm text-gray-600">
+                            <div>
+                                <span class="font-semibold">NISN:</span>
+                                <span class="ml-1">{{ $siswa->nisn ?? '-' }}</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold">NIS:</span>
+                                <span class="ml-1">{{ $siswa->nis }}</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold">Jenis Kelamin:</span>
+                                <span class="ml-1">{{ $siswa->jenis_kelamin ?? '-' }}</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold">Kelas:</span>
+                                <span class="ml-1">{{ $siswa->kelas ?? '-' }}</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold">Jurusan:</span>
+                                <span class="ml-1">{{ $siswa->jurusan ?? '-' }}</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold">Angkatan:</span>
+                                <span class="ml-1">{{ $siswa->angkatan ?? '-' }}</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold">Status:</span>
+                                <span class="ml-1 capitalize">{{ $siswa->status ?? '-' }}</span>
+                            </div>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-sm text-gray-500">Total Sertifikat</p>
-                        <p class="text-3xl font-bold text-blue-600">{{ $siswa->sertifikats->count() }}</p>
+                        <p class="text-xs text-gray-500 uppercase tracking-wide">Total sertifikat</p>
+                        <p class="text-2xl font-semibold text-orange-600">{{ $siswa->sertifikats->count() }}</p>
                     </div>
                 </div>
             </div>
 
             <!-- Sertifikat -->
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-bold text-gray-800">Daftar Sertifikat</h2>
-                    <a href="{{ route('sertifikat.upload') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition duration-200">
+                    <a href="{{ route('sertifikat.create', ['siswa_id' => $siswa->id, 'mode' => 'single']) }}" class="inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg text-sm hover:bg-orange-600 transition duration-200">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
@@ -54,7 +76,7 @@
                 @if($siswa->sertifikats->count() > 0)
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($siswa->sertifikats as $sertifikat)
-                    <div class="group relative bg-gray-50 rounded-xl overflow-hidden border border-gray-200 hover:border-blue-400 transition-all duration-200 hover:shadow-md">
+                    <div class="group relative bg-gray-50 rounded-xl overflow-hidden border border-gray-200 hover:border-orange-400 transition-all duration-200 hover:shadow-md">
                         <div class="aspect-w-16 aspect-h-9">
                             <img src="{{ Storage::url($sertifikat->foto_sertifikat) }}"
                                 alt="Sertifikat"
@@ -86,9 +108,9 @@
                             </a>
 
                             <!-- Edit -->
-                            <a href="{{ route('sertifikat.edit', $sertifikat->id) }}"
-                                class="p-2 bg-white rounded-full hover:bg-green-50 transition-colors duration-200">
-                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <a href="{{ route('sertifikat.edit', ['sertifikat' => $sertifikat->id, 'redirect' => 'detail']) }}"
+                                class="p-2 bg-white rounded-full hover:bg-slate-50 transition-colors duration-200">
+                                <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
@@ -123,11 +145,39 @@
                 </div>
                 @endif
             </div>
+
+            @if(isset($logs) && $logs->isNotEmpty())
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Riwayat Perubahan Data</h2>
+                    <div class="space-y-3 text-sm text-gray-600">
+                        @foreach($logs as $log)
+                            <div class="flex items-start justify-between gap-3 border-b border-dashed border-slate-100 pb-2 last:border-0 last:pb-0">
+                                <div>
+                                    <p class="font-medium text-gray-800 capitalize">
+                                        {{ $log->description }}
+                                        <span class="text-xs text-gray-400">
+                                            @if($log->user)
+                                                oleh {{ $log->user->name }}
+                                            @else
+                                                (sistem)
+                                            @endif
+                                        </span>
+                                    </p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ $log->created_at->format('d/m/Y H:i') }}
+                                    </p>
+                                </div>
+                                <div class="text-xs text-right text-gray-400">
+                                    ID log: {{ $log->id }}
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </main>
     </div>
 
-    <!-- SweetAlert -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function confirmDelete(sertifikatId, judulSertifikat) {
             Swal.fire({

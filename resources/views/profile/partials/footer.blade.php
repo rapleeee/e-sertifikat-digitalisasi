@@ -35,7 +35,19 @@
                     <i class="fab fa-facebook"></i>
                 </a>
             </div>
-            <p class="text-sm text-blue-300 mt-4">Dibuat oleh Tim RPL SMK Informatika Pesat</p>
+            <p class="text-sm text-blue-300 mt-4">
+                <a
+                    href="{{ route('tim.profil') }}"
+                    class="inline-flex items-center gap-1 relative group"
+                >
+                    <span>Dibuat oleh Tim RPL SMK Informatika Pesat</span>
+                    <span
+                        class="pointer-events-none absolute -top-8 left-0 rounded-md bg-slate-900 text-[10px] text-slate-100 px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150 whitespace-nowrap"
+                    >
+                        Klik untuk melihat profil tim
+                    </span>
+                </a>
+            </p>
         </div>
     </div>
 

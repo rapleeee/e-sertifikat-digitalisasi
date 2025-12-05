@@ -8,152 +8,101 @@
                 open = JSON.parse(localStorage.getItem('sidebarOpen'));
             });
         "
-        :class="open ? 'ml-64' : 'ml-16'"
+        :class="open ? 'ml-64' : ''"
         class="transition-all duration-300"
     >
-        <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-8">
-            <div class="max-w-4xl mx-auto px-6">
-                <div class="flex items-center space-x-3">
-                    <div class="p-3 bg-white/20 rounded-lg backdrop-blur-sm">
-                        <i class="fas fa-certificate text-2xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-3xl font-bold">Edit Sertifikat</h1>
-                        <p class="text-blue-100 mt-1">Perbarui informasi sertifikat Anda</p>
-                    </div>
-                </div>
+        <main class="pt-24 pb-12 px-4 sm:px-6 lg:px-10 max-w-7xl mx-auto space-y-6">
+            <div class="flex items-center gap-3 text-sm text-slate-500">
+                <a href="{{ route('sertifikat.show', $sertifikat->id) }}" class="inline-flex items-center hover:text-orange-600 transition">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Kembali ke detail sertifikat
+                </a>
             </div>
-        </div>
 
-        <!-- Main Content -->
-        <div class="max-w-4xl mx-auto py-8 px-6">
-            <!-- Alert Messages -->
-            @if(session('success'))
-                <div class="mb-6 bg-green-50 border-l-4 border-green-400 p-4 rounded-r-lg shadow-sm">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-check-circle text-green-400"></i>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-green-800 font-medium">{{ session('success') }}</p>
-                        </div>
-                    </div>
-                </div>
-            @endif
+            <header>
+                <h1 class="text-2xl font-semibold text-gray-900">Edit Sertifikat</h1>
+                <p class="mt-1 text-sm text-gray-500">
+                    Perbarui informasi sertifikat dan lampiran foto jika diperlukan.
+                </p>
+            </header>
 
-            @if(session('error'))
-                <div class="mb-6 bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg shadow-sm">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-exclamation-triangle text-red-400"></i>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-red-800 font-medium">{{ session('error') }}</p>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            <!-- Form Card -->
-            <div class="bg-white shadow-xl rounded-2xl overflow-hidden">
-                <div class="bg-gray-50 px-8 py-6 border-b border-gray-200">
+            <div class="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-200">
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h2 class="text-xl font-semibold text-gray-900">Informasi Sertifikat</h2>
-                            <p class="text-gray-600 text-sm mt-1">Lengkapi form berikut untuk memperbarui data sertifikat</p>
+                            <h2 class="text-lg font-semibold text-gray-900">Informasi Sertifikat</h2>
+                            <p class="text-gray-600 text-sm mt-1">Lengkapi form berikut untuk memperbarui data sertifikat.</p>
                         </div>
                         <div class="hidden sm:block">
-                            <div class="flex items-center text-sm text-gray-500">
-                                <i class="fas fa-info-circle mr-2"></i>
+                            <div class="flex items-center text-xs text-gray-500">
                                 <span>Field bertanda <span class="text-red-500">*</span> wajib diisi</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Form Content -->
-                <form action="{{ route('sertifikat.update', $sertifikat->id) }}" method="POST" enctype="multipart/form-data" class="px-8 py-8">
+                <form action="{{ route('sertifikat.update', $sertifikat->id) }}" method="POST" enctype="multipart/form-data" class="px-6 py-6 space-y-6">
                     @csrf
                     @method('PUT')
+                    <input type="hidden" name="redirect" value="{{ request('redirect', 'detail') }}">
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div class="space-y-6">
-                            {{-- Jenis Sertifikat Dropdown --}}
+                            {{-- Pilih Siswa --}}
                             <div class="group">
-                                <label for="jenis_sertifikat" class="flex items-center text-sm font-semibold text-gray-700 mb-3">
-                                    <i class="fas fa-tag text-blue-500 mr-2"></i>
+                                <label for="siswa_id" class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-user-graduate text-orange-500 mr-2"></i>
+                                    Data Siswa
+                                    <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <div class="relative">
+                                    <select id="siswa_id" name="siswa_id"
+                                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all duration-200 appearance-none bg-white @error('siswa_id') border-red-400 focus:border-red-500 focus:ring-red-100 @enderror"
+                                            required>
+                                        <option value="">Pilih Siswa</option>
+                                        @foreach($siswas as $siswa)
+                                            <option value="{{ $siswa->id }}" {{ (int) old('siswa_id', $sertifikat->siswa?->id) === $siswa->id ? 'selected' : '' }}>
+                                                {{ $siswa->nama }} ({{ $siswa->nis }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                </div>
+                                @error('siswa_id')
+                                    <p class="text-red-500 text-xs mt-1 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                                    </p>
+                                @enderror
+                            </div>
+
+                            {{-- Jenis Sertifikat --}}
+                            <div class="group">
+                                <label for="jenis_sertifikat" class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-tag text-orange-500 mr-2"></i>
                                     Jenis Sertifikat 
                                     <span class="text-red-500 ml-1">*</span>
                                 </label>
                                 <div class="relative">
                                     <select id="jenis_sertifikat" name="jenis_sertifikat" 
-                                            class="w-full border-2 border-gray-300 rounded-xl p-4 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 appearance-none bg-white @error('jenis_sertifikat') border-red-400 focus:border-red-500 focus:ring-red-100 @enderror">
+                                            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all duration-200 appearance-none bg-white @error('jenis_sertifikat') border-red-400 focus:border-red-500 focus:ring-red-100 @enderror"
+                                            required>
                                         <option value="">Pilih Jenis Sertifikat</option>
-                                        <option value="BNSP" {{ old('jenis_sertifikat', $sertifikat->jenis_sertifikat) == 'BNSP' ? 'selected' : '' }}>
-                                            BNSP (Badan Nasional Sertifikasi Profesi)
-                                        </option>
-                                        <option value="Kompetensi" {{ old('jenis_sertifikat', $sertifikat->jenis_sertifikat) == 'Kompetensi' ? 'selected' : '' }}>
-                                            Sertifikat Kompetensi
-                                        </option>
-                                        <option value="Internasional" {{ old('jenis_sertifikat', $sertifikat->jenis_sertifikat) == 'Internasional' ? 'selected' : '' }}>
-                                            Sertifikat Internasional
-                                        </option>
+                                        @foreach(['Kompetensi', 'BNSP', 'Prestasi', 'Internasional'] as $jenis)
+                                            <option value="{{ $jenis }}" {{ old('jenis_sertifikat', $sertifikat->jenis_sertifikat) === $jenis ? 'selected' : '' }}>
+                                                {{ $jenis }}
+                                            </option>
+                                        @endforeach
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
                                         <i class="fas fa-chevron-down text-gray-400"></i>
                                     </div>
                                 </div>
                                 @error('jenis_sertifikat')
-                                    <p class="text-red-500 text-sm mt-2 flex items-center">
-                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
-                                    </p>
-                                @enderror
-                            </div>
-
-                            {{-- Judul Sertifikat Input --}}
-                            <div class="group">
-                                <label for="judul_sertifikat" class="flex items-center text-sm font-semibold text-gray-700 mb-3">
-                                    <i class="fas fa-award text-yellow-500 mr-2"></i>
-                                    Judul Sertifikat 
-                                    <span class="text-red-500 ml-1">*</span>
-                                </label>
-                                <div class="relative">
-                                    <input type="text" 
-                                           id="judul_sertifikat" 
-                                           name="judul_sertifikat" 
-                                           value="{{ old('judul_sertifikat', $sertifikat->judul_sertifikat) }}" 
-                                           placeholder="Masukkan judul sertifikat"
-                                           class="w-full border-2 border-gray-300 rounded-xl p-4 pl-12 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 @error('judul_sertifikat') border-red-400 focus:border-red-500 focus:ring-red-100 @enderror">
-                                    <div class="absolute inset-y-0 left-0 flex items-center px-4">
-                                        <i class="fas fa-file-alt text-gray-400"></i>
-                                    </div>
-                                </div>
-                                @error('judul_sertifikat')
-                                    <p class="text-red-500 text-sm mt-2 flex items-center">
-                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
-                                    </p>
-                                @enderror
-                            </div>
-
-                            {{-- Tanggal Diraih Input --}}
-                            <div class="group">
-                                <label for="tanggal_diraih" class="flex items-center text-sm font-semibold text-gray-700 mb-3">
-                                    <i class="fas fa-calendar-alt text-green-500 mr-2"></i>
-                                    Tanggal Diraih 
-                                    <span class="text-red-500 ml-1">*</span>
-                                </label>
-                                <div class="relative">
-                                    <input type="date" 
-                                           id="tanggal_diraih" 
-                                           name="tanggal_diraih" 
-                                           value="{{ old('tanggal_diraih', $sertifikat->tanggal_diraih ? \Carbon\Carbon::parse($sertifikat->tanggal_diraih)->format('Y-m-d') : '') }}" 
-                                           class="w-full border-2 border-gray-300 rounded-xl p-4 pl-12 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 transition-all duration-200 @error('tanggal_diraih') border-red-400 focus:border-red-500 focus:ring-red-100 @enderror">
-                                    <div class="absolute inset-y-0 left-0 flex items-center px-4">
-                                        <i class="fas fa-calendar text-gray-400"></i>
-                                    </div>
-                                </div>
-                                @error('tanggal_diraih')
-                                    <p class="text-red-500 text-sm mt-2 flex items-center">
+                                    <p class="text-red-500 text-xs mt-1 flex items-center">
                                         <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
                                     </p>
                                 @enderror
@@ -161,180 +110,170 @@
                         </div>
 
                         <div class="space-y-6">
-                            {{-- Foto Sertifikat Input --}}
+                            {{-- Judul Sertifikat --}}
                             <div class="group">
-                                <label for="foto_sertifikat" class="flex items-center text-sm font-semibold text-gray-700 mb-3">
-                                    <i class="fas fa-image text-purple-500 mr-2"></i>
-                                    Foto Sertifikat 
-                                    <span class="text-gray-500 ml-2 text-xs font-normal">(Opsional)</span>
+                                <label for="judul_sertifikat" class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-certificate text-orange-500 mr-2"></i>
+                                    Judul Sertifikat
+                                    <span class="text-red-500 ml-1">*</span>
                                 </label>
-                                
-                                {{-- Display Foto --}}
-                                @if($sertifikat->foto_sertifikat && Storage::exists('public/' . $sertifikat->foto_sertifikat))
-                                    <div class="mb-6 p-4 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                                        <div class="text-center">
-                                            <p class="text-sm font-medium text-gray-600 mb-3 flex items-center justify-center">
-                                                <i class="fas fa-image mr-2"></i>Foto Saat Ini
-                                            </p>
-                                            <div class="inline-block p-2 bg-white rounded-lg shadow-sm">
-                                                <img src="{{ Storage::url($sertifikat->foto_sertifikat) }}" 
-                                                     alt="Current certificate photo" 
-                                                     class="h-40 w-auto object-cover rounded-lg border border-gray-200 shadow-sm">
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-
-                                <div class="relative">
-                                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors duration-200 @error('foto_sertifikat') border-red-400 @enderror">
-                                        <input type="file" 
-                                               id="foto_sertifikat" 
-                                               name="foto_sertifikat" 
-                                               accept="image/*"
-                                               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                                        
-                                        <div class="space-y-3">
-                                            <div class="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-cloud-upload-alt text-blue-600 text-xl"></i>
-                                            </div>
-                                            <div>
-                                                <p class="text-gray-600 font-medium">Klik untuk unggah foto baru</p>
-                                                <p class="text-gray-500 text-sm mt-1">atau drag & drop file ke sini</p>
-                                            </div>
-                                            <div class="flex items-center justify-center space-x-4 text-xs text-gray-500">
-                                                <span class="flex items-center">
-                                                    <i class="fas fa-file-image mr-1"></i>JPG, PNG, GIF
-                                                </span>
-                                                <span class="flex items-center">
-                                                    <i class="fas fa-weight-hanging mr-1"></i>Max 2MB
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                @error('foto_sertifikat')
-                                    <p class="text-red-500 text-sm mt-2 flex items-center">
+                                <input type="text" id="judul_sertifikat" name="judul_sertifikat"
+                                       class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all duration-200 @error('judul_sertifikat') border-red-400 focus:border-red-500 focus:ring-red-100 @enderror"
+                                       value="{{ old('judul_sertifikat', $sertifikat->judul_sertifikat) }}"
+                                       placeholder="Misal: Juara 1 Lomba UI/UX Nasional">
+                                @error('judul_sertifikat')
+                                    <p class="text-red-500 text-xs mt-1 flex items-center">
                                         <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
                                     </p>
                                 @enderror
+                            </div>
 
-                                <!-- Preview -->
-                                <div id="image-preview" class="hidden mt-4 p-4 bg-green-50 rounded-xl border border-green-200">
-                                    <p class="text-sm font-medium text-green-700 mb-3 flex items-center">
-                                        <i class="fas fa-eye mr-2"></i>Preview Foto Baru
+                            {{-- Penyelenggara --}}
+                            <div class="group">
+                                <label for="penyelenggara" class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-building text-orange-500 mr-2"></i>
+                                    Penyelenggara
+                                </label>
+                                <input type="text" id="penyelenggara" name="penyelenggara"
+                                       class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all duration-200 @error('penyelenggara') border-red-400 focus:border-red-500 focus:ring-red-100 @enderror"
+                                       value="{{ old('penyelenggara', $sertifikat->penyelenggara) }}"
+                                       placeholder="Nama lembaga / penyelenggara">
+                                @error('penyelenggara')
+                                    <p class="text-red-500 text-xs mt-1 flex items-center">
+                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
                                     </p>
-                                    <div class="text-center">
-                                        <img id="preview-img" class="inline-block h-40 w-auto object-cover rounded-lg border border-green-300 shadow-sm">
-                                    </div>
-                                </div>
+                                @enderror
                             </div>
                         </div>
                     </div>
 
-                    {{-- Button Submit --}}
-                    <div class="mt-10 pt-8 border-t border-gray-200">
-                        <div class="flex flex-col sm:flex-row gap-4 sm:justify-end">
-                            <a href="{{ route('dashboard') }}" 
-                               class="inline-flex items-center justify-center px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-4 focus:ring-gray-100 transition-all duration-200 text-center">
-                                <i class="fas fa-times mr-2"></i>Batal
-                            </a>
-                            
-                            <button type="submit" 
-                                    class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-100 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
-                                <i class="fas fa-save mr-2"></i>Simpan Perubahan
-                            </button>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {{-- Tanggal Diraih --}}
+                        <div class="group">
+                            <label for="tanggal_diraih" class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar-alt text-orange-500 mr-2"></i>
+                                Tanggal Diraih
+                            </label>
+                            <input
+                                type="date"
+                                id="tanggal_diraih"
+                                name="tanggal_diraih"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all duration-200 @error('tanggal_diraih') border-red-400 focus:border-red-500 focus:ring-red-100 @enderror"
+                                value="{{ old('tanggal_diraih', $sertifikat->tanggal_diraih ? \Carbon\Carbon::parse($sertifikat->tanggal_diraih)->format('Y-m-d') : '') }}"
+                            >
+                            @error('tanggal_diraih')
+                                <p class="text-red-500 text-xs mt-1 flex items-center">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                                </p>
+                            @enderror
+                        </div>
+
+                        {{-- Deskripsi --}}
+                        <div class="group lg:col-span-2">
+                            <label for="deskripsi" class="flex items-center text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-align-left text-orange-500 mr-2"></i>
+                                Deskripsi
+                            </label>
+                            <textarea id="deskripsi" name="deskripsi" rows="4"
+                                      class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-orange-100 focus:border-orange-500 transition-all duration-200 @error('deskripsi') border-red-400 focus:border-red-500 focus:ring-red-100 @enderror"
+                                      placeholder="Tambahkan keterangan singkat mengenai sertifikat ini">{{ old('deskripsi', $sertifikat->deskripsi) }}</textarea>
+                            @error('deskripsi')
+                                <p class="text-red-500 text-xs mt-1 flex items-center">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                                </p>
+                            @enderror
+                            <p class="text-gray-600 text-xs mt-1">
+                                Deskripsi bersifat opsional, namun dapat membantu penjelasan saat melihat riwayat sertifikat.
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- Foto Sertifikat --}}
+                    <div class="space-y-4">
+                        <label class="flex items-center text-sm font-medium text-gray-700 mb-1">
+                            <i class="fas fa-image text-orange-500 mr-2"></i>
+                            Foto Sertifikat 
+                            <span class="text-gray-500 ml-2 text-xs font-normal">(Opsional)</span>
+                        </label>
+                        
+                        {{-- Display Foto --}}
+                        @if($sertifikat->foto_sertifikat && Storage::disk('public')->exists($sertifikat->foto_sertifikat))
+                            <div class="mb-4 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                <div class="text-center">
+                                    <p class="text-sm font-medium text-gray-600 mb-3 flex items-center justify-center">
+                                        <i class="fas fa-image mr-2"></i>Foto Saat Ini
+                                    </p>
+                                    <div class="inline-block p-2 bg-white rounded-lg shadow-sm">
+                                        <img src="{{ Storage::url($sertifikat->foto_sertifikat) }}" 
+                                                alt="Current certificate photo" 
+                                                class="h-40 w-auto object-cover rounded-lg border border-gray-200 shadow-sm">
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="relative">
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-orange-400 transition-colors duration-200 @error('foto_sertifikat') border-red-400 @enderror">
+                                <input type="file" 
+                                        id="foto_sertifikat" 
+                                        name="foto_sertifikat" 
+                                        accept="image/*"
+                                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                
+                                <div class="space-y-3">
+                                    <div class="mx-auto w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-cloud-upload-alt text-orange-600 text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-600 font-medium text-sm">Klik untuk unggah foto baru</p>
+                                        <p class="text-gray-500 text-xs mt-1">atau drag & drop file ke sini</p>
+                                    </div>
+                                    <div class="flex items-center justify-center space-x-4 text-xs text-gray-500">
+                                        <span class="flex items-center">
+                                            <i class="fas fa-file-image mr-1"></i>JPG, PNG
+                                        </span>
+                                        <span class="flex items-center">
+                                            <i class="fas fa-weight-hanging mr-1"></i>Max 2MB
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <!-- Mobile Info -->
-                        <div class="sm:hidden mt-4 p-3 bg-blue-50 rounded-lg">
-                            <p class="text-xs text-blue-700 text-center">
-                                <i class="fas fa-info-circle mr-1"></i>
-                                Field bertanda <span class="text-red-500 font-semibold">*</span> wajib diisi
+                        @error('foto_sertifikat')
+                            <p class="text-red-500 text-xs mt-1 flex items-center">
+                                <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
                             </p>
+                        @enderror
+
+                        @if($sertifikat->foto_sertifikat)
+                            <label class="mt-2 inline-flex items-center px-3 py-2 bg-gray-100 border border-gray-200 rounded-lg text-xs text-gray-600 shadow-sm hover:bg-gray-200 transition">
+                                <input type="checkbox" name="hapus_foto" value="1" class="rounded border-gray-300 text-red-500 focus:ring-red-400 mr-2">
+                                Hapus foto saat ini
+                            </label>
+                            @error('hapus_foto')
+                                <p class="text-red-500 text-xs mt-1 flex items-center">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
+                                </p>
+                            @enderror
+                        @endif
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-gray-200">
+                        <p class="text-xs text-gray-500">
+                            Perubahan akan langsung mempengaruhi tampilan sertifikat pada halaman siswa dan laporan terkait.
+                        </p>
+                        <div class="flex gap-3">
+                            <a href="{{ route('sertifikat.show', $sertifikat->id) }}" class="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                Batal
+                            </a>
+                            <button type="submit" class="inline-flex items-center px-5 py-2.5 rounded-lg bg-orange-500 text-white text-sm font-semibold shadow-sm hover:bg-orange-600 transition">
+                                Simpan Perubahan
+                            </button>
                         </div>
                     </div>
                 </form>
             </div>
-        </div>
+        </main>
     </div>
-
-    {{-- Enhanced Preview Image Script --}}
-    <script>
-        document.getElementById('foto_sertifikat').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const preview = document.getElementById('image-preview');
-            const previewImg = document.getElementById('preview-img');
-            
-            if (file) {
-                // Validate file size
-                if (file.size > 2 * 1024 * 1024) {
-                    alert('Ukuran file terlalu besar. Maksimal 2MB.');
-                    this.value = '';
-                    preview.classList.add('hidden');
-                    return;
-                }
-                
-                // Validate file type
-                if (!file.type.match(/^image\/(jpeg|jpg|png|gif)$/)) {
-                    alert('Format file tidak didukung. Gunakan JPG, PNG, atau GIF.');
-                    this.value = '';
-                    preview.classList.add('hidden');
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewImg.src = e.target.result;
-                    preview.classList.remove('hidden');
-                    
-                    // Smooth scroll to preview
-                    preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                };
-                reader.readAsDataURL(file);
-            } else {
-                preview.classList.add('hidden');
-            }
-        });
-
-        // Drag and drop functionality
-        const dropZone = document.getElementById('foto_sertifikat').parentElement;
-        
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
-        });
-        
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, highlight, false);
-        });
-        
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, unhighlight, false);
-        });
-        
-        function highlight(e) {
-            dropZone.classList.add('border-blue-500', 'bg-blue-50');
-        }
-        
-        function unhighlight(e) {
-            dropZone.classList.remove('border-blue-500', 'bg-blue-50');
-        }
-        
-        dropZone.addEventListener('drop', handleDrop, false);
-        
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            
-            if (files.length > 0) {
-                document.getElementById('foto_sertifikat').files = files;
-                document.getElementById('foto_sertifikat').dispatchEvent(new Event('change'));
-            }
-        }
-    </script>
 </x-app-layout>

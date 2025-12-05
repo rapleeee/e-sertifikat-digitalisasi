@@ -11,7 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $appEnv = $_SERVER['APP_ENV'] ?? $_ENV['APP_ENV'] ?? null;
+
+        if ($appEnv === 'testing') {
+            $middleware->removeFromGroup('web', \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
+        }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

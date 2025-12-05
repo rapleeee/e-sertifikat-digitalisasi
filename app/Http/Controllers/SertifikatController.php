@@ -2,22 +2,55 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BulkStoreSertifikatRequest;
+use App\Http\Requests\StoreSertifikatRequest;
+use App\Http\Requests\UpdateSertifikatRequest;
+use App\Exports\SiswaTemplateExport;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use App\Models\Sertifikat;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Support\Str;
-use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SertifikatController extends Controller
 {
-    public function index()
+    public function index(): View
     {
-        $siswas = Siswa::orderBy('nama')->paginate(10);
+        $siswas = Siswa::withCount('sertifikats')
+            ->orderBy('nama')
+            ->paginate(10);
 
-        // Kalau mau tabel “Sertifikat Terbaru” juga, ambil terpisah (opsional)
+        // Sertifikat 12 bulan terakhir (untuk analitik sederhana)
+        $sertifikatByMonth = Sertifikat::query()
+            ->whereNotNull('tanggal_diraih')
+            ->where('tanggal_diraih', '>=', now()->subYear()->startOfMonth())
+            ->get()
+            ->groupBy(function (Sertifikat $s) {
+                return \Carbon\Carbon::parse($s->tanggal_diraih)->format('Y-m');
+            })
+            ->map(fn ($items) => $items->count())
+            ->sortKeys();
+
+        // Distribusi sertifikat per jurusan
+        $sertifikatByJurusan = Sertifikat::with('siswa')
+            ->get()
+            ->groupBy(function (Sertifikat $s) {
+                return $s->siswa?->jurusan ?: 'Tidak diisi';
+            })
+            ->map(fn ($items) => $items->count())
+            ->sortDesc();
+
+        $chartMonths = $sertifikatByMonth->keys()->map(function ($ym) {
+            return \Carbon\Carbon::createFromFormat('Y-m', $ym)->translatedFormat('M Y');
+        });
+
         $sertifikats = Sertifikat::with('siswa')
             ->orderByDesc('tanggal_diraih')
             ->orderByDesc('id')
@@ -31,41 +64,130 @@ class SertifikatController extends Controller
             ->whereYear('tanggal_diraih', now()->year)
             ->count();
 
-        return view('dashboard', compact(
-            'siswas',
-            'sertifikats', // opsional kalau tabel sertifikat terbaru dipakai
-            'totalSertifikasi',
-            'totalSiswa',
-            'totalSertifikatBulanIni',
-            'totalAdminAktif'
-        ));
-    }
-
-    public function create()
-    {
-        return view('sertifikat.create');
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nis' => 'required|string|unique:siswas,nis',
-            'nama' => 'required|string',
+        return view('dashboard', [
+            'siswas' => $siswas,
+            'sertifikats' => $sertifikats,
+            'totalSertifikasi' => $totalSertifikasi,
+            'totalSiswa' => $totalSiswa,
+            'totalSertifikatBulanIni' => $totalSertifikatBulanIni,
+            'totalAdminAktif' => $totalAdminAktif,
+            'chartMonths' => $chartMonths,
+            'chartValues' => $sertifikatByMonth->values(),
+            'jurusanLabels' => $sertifikatByJurusan->keys(),
+            'jurusanValues' => $sertifikatByJurusan->values(),
         ]);
-
-        Siswa::create([
-            'nis' => $request->nis,
-            'nama' => $request->nama,
-        ]);
-
-        return redirect()->route('dashboard')->with('success', 'Siswa baru berhasil ditambahkan.');
     }
 
-    public function storePhoto(Request $request)
+    public function create(Request $request): View
+    {
+        $siswas = Siswa::orderBy('nama')->get(['id', 'nama', 'nis', 'kelas', 'jurusan']);
+
+        $kelasOptions = Siswa::query()
+            ->select('kelas')
+            ->whereNotNull('kelas')
+            ->where('kelas', '<>', '')
+            ->distinct()
+            ->orderBy('kelas')
+            ->pluck('kelas');
+
+        $jurusanOptions = Siswa::query()
+            ->select('jurusan')
+            ->whereNotNull('jurusan')
+            ->where('jurusan', '<>', '')
+            ->distinct()
+            ->orderBy('jurusan')
+            ->pluck('jurusan');
+        $prefilledSiswa = null;
+
+        if ($request->filled('siswa_id')) {
+            $prefilledSiswa = $siswas->firstWhere('id', (int) $request->input('siswa_id'));
+        }
+
+        return view('sertifikat.create', compact('siswas', 'prefilledSiswa', 'kelasOptions', 'jurusanOptions'));
+    }
+
+    public function store(StoreSertifikatRequest $request): RedirectResponse
+    {
+        $data = $request->validated();
+        $siswa = Siswa::findOrFail($data['siswa_id']);
+
+        $payload = [
+            'nis' => $siswa->nis,
+            'jenis_sertifikat' => $data['jenis_sertifikat'],
+            'judul_sertifikat' => $data['judul_sertifikat'],
+            'tanggal_diraih' => Carbon::parse($data['tanggal_diraih'])->toDateString(),
+        ];
+
+        if ($request->hasFile('foto_sertifikat')) {
+            $payload['foto_sertifikat'] = $request->file('foto_sertifikat')->store('sertifikat_photos', 'public');
+        }
+
+        DB::transaction(fn () => Sertifikat::create($payload));
+
+        $redirect = $request->input('redirect', 'detail');
+        $route = $redirect === 'dashboard'
+            ? route('dashboard')
+            : route('siswa.show', $siswa);
+
+        return redirect($route)->with('success', 'Sertifikat berhasil ditambahkan.');
+    }
+
+    public function bulkStore(BulkStoreSertifikatRequest $request): RedirectResponse
+    {
+        $data = $request->validated();
+
+        try {
+            $siswas = Siswa::whereIn('id', $data['siswa_ids'])->get();
+            $tanggal = Carbon::parse($data['tanggal_diraih'])->toDateString();
+
+            if ($siswas->isEmpty()) {
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with('error', 'Siswa tidak ditemukan. Silakan periksa kembali pilihan siswa.');
+            }
+
+            $created = 0;
+            $fotoPath = null;
+
+            if ($request->hasFile('foto_sertifikat')) {
+                $fotoPath = $request->file('foto_sertifikat')->store('sertifikat_photos', 'public');
+            }
+
+            DB::transaction(function () use ($siswas, $data, $tanggal, $fotoPath, &$created) {
+                foreach ($siswas as $siswa) {
+                    $payload = [
+                        'nis' => $siswa->nis,
+                        'jenis_sertifikat' => $data['jenis_sertifikat'],
+                        'judul_sertifikat' => $data['judul_sertifikat'],
+                        'tanggal_diraih' => $tanggal,
+                    ];
+
+                    if ($fotoPath) {
+                        $payload['foto_sertifikat'] = $fotoPath;
+                    }
+
+                    Sertifikat::create($payload);
+                    $created++;
+                }
+            });
+
+            return redirect()
+                ->route('dashboard')
+                ->with('success', "Sertifikat berhasil ditambahkan untuk {$created} siswa.");
+        } catch (\Throwable $e) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Gagal menambahkan sertifikat untuk multi siswa. Silakan coba lagi atau hubungi admin. (' . $e->getMessage() . ')');
+        }
+    }
+
+    public function storePhoto(Request $request): RedirectResponse
     {
         $request->validate([
             'sertifikat_id' => 'required|exists:sertifikats,id',
-            'foto_sertifikat' => 'required|image|mimes:jpg,jpeg,png|max:5120'
+            'foto_sertifikat' => 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
         $sertifikat = Sertifikat::findOrFail($request->sertifikat_id);
@@ -73,11 +195,13 @@ class SertifikatController extends Controller
         $fotoPath = $request->file('foto_sertifikat')->store('sertifikat_photos', 'public');
 
         try {
-            if ($sertifikat->foto_sertifikat && Storage::disk('public')->exists($sertifikat->foto_sertifikat)) {
-                Storage::disk('public')->delete($sertifikat->foto_sertifikat);
-            }
+            DB::transaction(function () use ($sertifikat, $fotoPath) {
+                if ($sertifikat->foto_sertifikat) {
+                    Storage::disk('public')->delete($sertifikat->foto_sertifikat);
+                }
 
-            $sertifikat->update(['foto_sertifikat' => $fotoPath]);
+                $sertifikat->update(['foto_sertifikat' => $fotoPath]);
+            });
 
             return redirect()->route('dashboard')->with('success', 'Foto sertifikat berhasil diperbarui!');
         } catch (\Exception $e) {
@@ -91,44 +215,70 @@ class SertifikatController extends Controller
     {
         $request->validate([
             'foto_sertifikat' => ['required', 'array'],
-            'foto_sertifikat.*' => ['file', 'image', 'mimes:jpeg,png,jpg', 'max:5120'],
+            'foto_sertifikat.*' => ['file', 'image', 'mimes:jpeg,jpg,png,webp,JPEG,JPG', 'max:2048'],
             'jenis_sertifikat' => ['required', 'string', 'max:100'],
             'judul_sertifikat' => ['required', 'string', 'max:255'],
-            'tanggal_diraih' => ['required', 'date'],
+            'tanggal_diraih' => ['required', 'date', 'before_or_equal:today'],
+        ], [
+            'foto_sertifikat.required' => 'Silakan pilih minimal satu file sertifikat.',
+            'foto_sertifikat.*.max' => 'Setiap file sertifikat maksimal 2MB. File yang melebihi batas tidak akan diunggah.',
+            'foto_sertifikat.*.mimes' => 'Format file harus JPG/JPEG/PNG.',
         ]);
 
         $jenis = $request->string('jenis_sertifikat')->toString();
         $judul = $request->string('judul_sertifikat')->toString();
         $tanggal = Carbon::parse($request->input('tanggal_diraih'))->toDateString();
 
+        if (!$request->hasFile('foto_sertifikat') || !is_array($request->file('foto_sertifikat'))) {
+            return back()
+                ->withInput()
+                ->with('error', 'Tidak ada file yang terdeteksi. Pastikan kamu sudah memilih atau menyeret berkas ke area upload.');
+        }
+
+        $files = $request->file('foto_sertifikat');
         $ok = $skipped = [];
 
-        foreach ($request->file('foto_sertifikat') as $file) {
-            // Ambil NIS dari nama file
-            $nis = trim(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+        try {
+            DB::transaction(function () use ($files, $jenis, $judul, $tanggal, &$ok, &$skipped) {
+                foreach ($files as $file) {
+                    $nis = trim(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+                    if ($nis === '') {
+                        $skipped[] = "Nama file {$file->getClientOriginalName()} tidak valid";
+                        continue;
+                    }
 
-            // Cek apakah siswa dengan NIS tersebut ada
-            $siswa = Siswa::where('nis', $nis)->first();
-            if (!$siswa) {
-                $skipped[] = "{$nis} (siswa tidak ditemukan)";
-                continue;
-            }
+                    $siswa = Siswa::where('nis', $nis)->first();
+                    if (!$siswa) {
+                        $skipped[] = "{$nis} (siswa tidak ditemukan)";
+                        continue;
+                    }
 
-            // Simpan file sertifikat
-            $ext = strtolower($file->getClientOriginalExtension());
-            $filename = "{$nis}-" . now()->format('YmdHis') . "-" . Str::random(4) . ".{$ext}";
-            $path = $file->storeAs('sertifikats', $filename, 'public');
+                    $ext = strtolower($file->getClientOriginalExtension());
+                    $filename = "{$nis}-" . now()->format('YmdHis') . "-" . Str::random(4) . ".{$ext}";
+                    $path = $file->storeAs('sertifikat_photos', $filename, 'public');
 
-            // Buat sertifikat baru
-            Sertifikat::create([
-                'nis' => $siswa->nis,
-                'jenis_sertifikat' => $jenis,
-                'judul_sertifikat' => $judul,
-                'tanggal_diraih' => $tanggal,
-                'foto_sertifikat' => $path
-            ]);
+                    Sertifikat::create([
+                        'nis' => $siswa->nis,
+                        'jenis_sertifikat' => $jenis,
+                        'judul_sertifikat' => $judul,
+                        'tanggal_diraih' => $tanggal,
+                        'foto_sertifikat' => $path
+                    ]);
 
-            $ok[] = "{$nis} → {$filename}";
+                    $ok[] = "{$nis} → {$filename}";
+                }
+            });
+        } catch (\Throwable $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Gagal mengunggah sertifikat: ' . $e->getMessage());
+        }
+
+        if (count($ok) === 0) {
+            return back()
+                ->withInput()
+                ->with('error', 'Tidak ada sertifikat yang berhasil diunggah. Pastikan nama file sama persis dengan NIS siswa.')
+                ->with('skipped', $skipped);
         }
 
         $msg = "Upload massal selesai. Berhasil: " . count($ok);
@@ -141,52 +291,67 @@ class SertifikatController extends Controller
             ->with('skipped', $skipped);
     }
     // ===== Tambahan dari controller lama (Edit, Update, Destroy) =====
-    public function edit($id)
+    public function edit(Sertifikat $sertifikat): View
     {
-        $sertifikat = Sertifikat::findOrFail($id);
-        return view('sertifikat.edit', compact('sertifikat'));
+        $sertifikat->load('siswa');
+        $siswas = Siswa::orderBy('nama')->get(['id', 'nama', 'nis']);
+
+        return view('sertifikat.edit', compact('sertifikat', 'siswas'));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateSertifikatRequest $request, Sertifikat $sertifikat): RedirectResponse
     {
-        $sertifikat = Sertifikat::findOrFail($id);
+        $data = $request->validated();
+        $siswa = Siswa::findOrFail($data['siswa_id']);
 
-        $request->validate([
-            'jenis_sertifikat' => 'nullable|string',
-            'judul_sertifikat' => 'nullable|string',
-            'tanggal_diraih' => 'nullable|date',
-            'foto_sertifikat' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
-        ]);
+        $payload = [
+            'nis' => $siswa->nis,
+            'jenis_sertifikat' => $data['jenis_sertifikat'],
+            'judul_sertifikat' => $data['judul_sertifikat'],
+            'tanggal_diraih' => Carbon::parse($data['tanggal_diraih'])->toDateString(),
+        ];
 
-        $data = $request->only(['nama_siswa', 'jenis_sertifikat', 'judul_sertifikat', 'tanggal_diraih']);
+        DB::transaction(function () use ($request, $sertifikat, $payload) {
+            $updateData = $payload;
 
-        if ($request->hasFile('foto_sertifikat')) {
-            if ($sertifikat->foto_sertifikat && Storage::disk('public')->exists($sertifikat->foto_sertifikat)) {
+            if ($request->boolean('hapus_foto') && $sertifikat->foto_sertifikat) {
+                Storage::disk('public')->delete($sertifikat->foto_sertifikat);
+                $updateData['foto_sertifikat'] = null;
+            }
+
+            if ($request->hasFile('foto_sertifikat')) {
+                if ($sertifikat->foto_sertifikat) {
+                    Storage::disk('public')->delete($sertifikat->foto_sertifikat);
+                }
+                $updateData['foto_sertifikat'] = $request->file('foto_sertifikat')->store('sertifikat_photos', 'public');
+            }
+
+            $sertifikat->update($updateData);
+        });
+
+        $redirect = $request->input('redirect', 'detail');
+        $route = $redirect === 'dashboard'
+            ? route('dashboard')
+            : route('siswa.show', $siswa);
+
+        return redirect($route)->with('success', 'Data sertifikat berhasil diperbarui.');
+    }
+
+    public function destroy(Sertifikat $sertifikat): RedirectResponse
+    {
+        DB::transaction(function () use ($sertifikat) {
+            if ($sertifikat->foto_sertifikat) {
                 Storage::disk('public')->delete($sertifikat->foto_sertifikat);
             }
-            $data['foto_sertifikat'] = $request->file('foto_sertifikat')->store('sertifikat_photos', 'public');
-        }
 
-        $sertifikat->update($data);
+            $sertifikat->delete();
+        });
 
-        return redirect()->route('dashboard')->with('success', 'Data berhasil diperbarui!');
-    }
-
-    public function destroy($id)
-    {
-        $sertifikat = Sertifikat::findOrFail($id);
-
-        if ($sertifikat->foto_sertifikat && Storage::disk('public')->exists($sertifikat->foto_sertifikat)) {
-            Storage::disk('public')->delete($sertifikat->foto_sertifikat);
-        }
-
-        $sertifikat->delete();
-
-        return redirect()->route('dashboard')->with('success', 'Data berhasil dihapus!');
+        return redirect()->back()->with('success', 'Data sertifikat berhasil dihapus!');
     }
 
     // ====== Search & API ======
-    public function search()
+    public function search(): View
     {
         return view('sertifikat.search');
     }
@@ -194,7 +359,7 @@ class SertifikatController extends Controller
     /**
      * Proses pencarian sertifikat (untuk form biasa)
      */
-    public function doSearch(Request $request)
+    public function doSearch(Request $request): View
     {
         $request->validate([
             'search_type' => 'required|in:nama,nis',
@@ -208,22 +373,23 @@ class SertifikatController extends Controller
                 $q->where('nama', 'LIKE', "%{$request->search_term}%");
             });
         } else {
-            $query->whereHas('siswa', function ($q) use ($request) {
-                $q->where('nis', 'LIKE', "%{$request->search_term}%");
-            });
+            // Cari berdasarkan NIS yang tersimpan di tabel sertifikats
+            $query->where('nis', 'LIKE', "%{$request->search_term}%");
         }
 
         $results = $query->orderBy('tanggal_diraih', 'desc')->get();
 
-        return view('sertifikat.results', compact('results'))
-            ->with('searchTerm', $request->search_term)
-            ->with('searchType', $request->search_type);
+        return view('sertifikat.results', [
+            'results' => $results,
+            'searchTerm' => $request->search_term,
+            'searchType' => $request->search_type,
+        ]);
     }
 
     /**
      * API pencarian sertifikat (untuk AJAX)
      */
-    public function searchApi(Request $request)
+    public function searchApi(Request $request): JsonResponse
     {
         try {
             $request->validate([
@@ -234,20 +400,16 @@ class SertifikatController extends Controller
             $query = Sertifikat::with('siswa');
 
             if ($request->type === 'nama') {
-                // Cari berdasarkan nama siswa
                 $query->whereHas('siswa', function ($q) use ($request) {
                     $q->where('nama', 'LIKE', '%' . $request->term . '%');
                 });
             } else {
-                // Cari berdasarkan NIS siswa
-                $query->whereHas('siswa', function ($q) use ($request) {
-                    $q->where('nis', 'LIKE', '%' . $request->term . '%');
-                });
+                // Cari berdasarkan NIS yang tersimpan di tabel sertifikats
+                $query->where('nis', 'LIKE', '%' . $request->term . '%');
             }
 
             $results = $query->orderBy('tanggal_diraih', 'desc')->limit(50)->get();
 
-            // Format data untuk response dengan relasi siswa
             $formattedResults = $results->map(function ($sertifikat) {
                 return [
                     'id' => $sertifikat->id,
@@ -257,13 +419,55 @@ class SertifikatController extends Controller
                     'foto_sertifikat' => $sertifikat->foto_sertifikat,
                     'nama_siswa' => $sertifikat->siswa ? $sertifikat->siswa->nama : 'N/A',
                     'nis' => $sertifikat->siswa ? $sertifikat->siswa->nis : 'N/A',
+                    'kelas' => $sertifikat->siswa?->kelas,
+                    'jurusan' => $sertifikat->siswa?->jurusan,
                 ];
             });
+
+            $hasSiswaTanpaSertifikat = false;
+            $jumlahSiswaTanpaSertifikat = 0;
+            $siswaTanpaSertifikat = [];
+
+            if ($formattedResults->isEmpty()) {
+                $siswaQuery = Siswa::query();
+
+                if ($request->type === 'nama') {
+                    $siswaQuery->where('nama', 'LIKE', '%' . $request->term . '%');
+                } else {
+                    $siswaQuery->where('nis', 'LIKE', '%' . $request->term . '%');
+                }
+
+                $jumlahSiswaTanpaSertifikat = $siswaQuery->count();
+                $hasSiswaTanpaSertifikat = $jumlahSiswaTanpaSertifikat > 0;
+
+                if ($hasSiswaTanpaSertifikat) {
+                    $siswaTanpaSertifikat = $siswaQuery
+                        ->orderBy('nama')
+                        ->take(10)
+                        ->get(['id', 'nama', 'nis', 'kelas', 'jurusan'])
+                        ->map(function (Siswa $siswa) {
+                            return [
+                                'id' => $siswa->id,
+                                'nama' => $siswa->nama,
+                                'nis' => $siswa->nis,
+                                'kelas' => $siswa->kelas,
+                                'jurusan' => $siswa->jurusan,
+                            ];
+                        })
+                        ->values()
+                        ->all();
+                }
+            }
 
             return response()->json([
                 'success' => true,
                 'count' => $formattedResults->count(),
-                'data' => $formattedResults
+                'data' => $formattedResults,
+                'meta' => [
+                    'has_siswa_tanpa_sertifikat' => $hasSiswaTanpaSertifikat,
+                    'jumlah_siswa_tanpa_sertifikat' => $jumlahSiswaTanpaSertifikat,
+                    'siswa_tanpa_sertifikat' => $siswaTanpaSertifikat,
+                ],
             ]);
 
         } catch (\Exception $e) {
@@ -274,41 +478,36 @@ class SertifikatController extends Controller
         }
     }
 
-    public function show($id)
+    public function show(Request $request, Sertifikat $sertifikat)
     {
-        try {
-            $sertifikat = Sertifikat::with('siswa')->findOrFail($id);
+        $sertifikat->load('siswa');
 
-            if (request()->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'data' => [
-                        'id' => $sertifikat->id,
-                        'jenis_sertifikat' => $sertifikat->jenis_sertifikat,
-                        'judul_sertifikat' => $sertifikat->judul_sertifikat,
-                        'tanggal_diraih' => $sertifikat->tanggal_diraih,
-                        'foto_sertifikat' => $sertifikat->foto_sertifikat,
-                        'nama' => $sertifikat->siswa ? $sertifikat->siswa->nama : 'N/A',
-                        'nis' => $sertifikat->siswa ? $sertifikat->siswa->nis : 'N/A',
-                    ]
-                ]);
-            }
-
-            return view('sertifikat.detail', compact('sertifikat'));
-
-        } catch (\Exception $e) {
-            if (request()->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Sertifikat tidak ditemukan'
-                ], 404);
-            }
-
-            return redirect()->back()->with('error', 'Sertifikat tidak ditemukan');
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $sertifikat->id,
+                    'jenis_sertifikat' => $sertifikat->jenis_sertifikat,
+                    'judul_sertifikat' => $sertifikat->judul_sertifikat,
+                    'tanggal_diraih' => $sertifikat->tanggal_diraih,
+                    'foto_sertifikat' => $sertifikat->foto_sertifikat,
+                    'nama' => $sertifikat->siswa?->nama ?? 'N/A',
+                    'nis' => $sertifikat->siswa?->nis ?? 'N/A',
+                ]
+            ]);
         }
+
+        return view('sertifikat.show', compact('sertifikat'));
     }
 
-    public function verify(Request $request)
+    public function card(Sertifikat $sertifikat)
+    {
+        $sertifikat->load('siswa');
+
+        return view('sertifikat.card', compact('sertifikat'));
+    }
+
+    public function verify(Request $request): JsonResponse
     {
         $request->validate(['identifier' => 'required|string']);
 
@@ -317,7 +516,10 @@ class SertifikatController extends Controller
             ->first();
 
         if (!$sertifikat) {
-            return response()->json(['success' => false, 'message' => 'Sertifikat tidak ditemukan']);
+            return response()->json([
+                'success' => false,
+                'message' => 'Sertifikat tidak ditemukan'
+            ]);
         }
 
         return response()->json(['success' => true, 'message' => 'Sertifikat valid', 'data' => $sertifikat]);
@@ -327,27 +529,9 @@ class SertifikatController extends Controller
 
     public function downloadTemplate()
     {
-        $filePath = public_path('templates/data siswa.xlsx');
-        if (!file_exists($filePath)) {
-            // Cek juga di storage
-            $storagePath = storage_path('app/templates/data siswa.xlsx');
-            if (file_exists($storagePath)) {
-                $filePath = $storagePath;
-            } else {
-                return redirect()->back()->with('error', 'File template tidak ditemukan di: ' . $filePath);
-            }
-        }
-        
-        // Cek apakah file bisa dibaca
-        if (!is_readable($filePath)) {
-            return redirect()->back()->with('error', 'File template tidak dapat dibaca. Periksa permission file.');
-        }
-        
         try {
-            return response()->download($filePath, 'template-sertifikat.xlsx', [
-                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            ]);
-        } catch (\Exception $e) {
+            return Excel::download(new SiswaTemplateExport(), 'template-import-siswa.xlsx');
+        } catch (\Throwable $e) {
             return redirect()->back()->with('error', 'Gagal mendownload template: ' . $e->getMessage());
         }
     }

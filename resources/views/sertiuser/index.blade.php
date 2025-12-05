@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,101 +7,131 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Cari Sertifikat - Certisat</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-    <body class="relative bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 text-gray-800 font-sans transition-colors duration-300 bg-pattern">
+    <body class="bg-slate-50 text-slate-800 antialiased">
         @include('profile.partials.navbar-user')
-        <div id="particles" class="fixed inset-0 pointer-events-none z-0"></div>
 
-        <!-- Background animation -->
-        <canvas id="bgCanvas" class="absolute inset-0 w-full h-full z-0"></canvas>
-
-        <!-- Bg decoration -->
-        <div class="absolute top-20 left-10 w-20 h-20 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full opacity-10 animate-floating"></div>
-        <div class="absolute top-40 right-20 w-32 h-32 bg-gradient-to-br from-pink-400 to-yellow-400 rounded-full opacity-10 animate-floating" style="animation-delay: -1s;"></div>
-        <div class="absolute bottom-20 left-1/4 w-16 h-16 bg-gradient-to-br from-green-400 to-blue-500 rounded-full opacity-10 animate-floating" style="animation-delay: -2s;"></div>
-
-        <!-- Content wrapper -->
-        <div class="relative z-10">
+        <main class="pt-24 pb-16 px-4 sm:px-6 lg:px-10 max-w-6xl mx-auto space-y-10">
             <!-- Search Section -->
-            <section class="pt-32 pb-20 px-6">
-                <div class="max-w-3xl mx-auto text-center">
-                    <h1 class="text-4xl font-bold gradient-text mb-4 animate-slideInDown">Cari Sertifikat Siswa</h1>
-                    <p class="text-gray-600 mb-8 text-lg animate-fadeInUp" style="animation-delay: 0.2s;">Temukan sertifikat siswa berdasarkan nama atau NIS</p>
-                    
+            <section>
+                <div class="max-w-3xl mx-auto text-center space-y-6">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-semibold text-slate-900">Cari Sertifikat Siswa</h1>
+                        <p class="mt-2 text-sm sm:text-base text-slate-600">
+                            Masukkan nama atau NIS siswa untuk melihat sertifikat yang sudah diterbitkan oleh sekolah.
+                        </p>
+                    </div>
+
                     <!-- Tabs -->
-                    <div class="flex justify-center gap-4 mb-8 animate-fadeInUp" style="animation-delay: 0.4s;">
-                        <button id="tabNama" 
-                            class="tab-enhanced active px-6 py-3 rounded-full text-gray-700 font-medium shadow-lg transition">
-                            <i class="fas fa-user mr-2"></i> Nama Siswa
+                    <div class="inline-flex rounded-xl border border-slate-200 bg-white p-1">
+                        <button
+                            id="tabNama"
+                            class="px-4 py-2 text-sm font-medium rounded-lg active bg-orange-500 text-white"
+                        >
+                            Nama siswa
                         </button>
-                        <button id="tabNis" 
-                            class="tab-enhanced px-6 py-3 rounded-full text-gray-700 font-medium shadow-lg transition">
-                            <i class="fas fa-id-card mr-2"></i> NIS
+                        <button
+                            id="tabNis"
+                            class="px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50"
+                        >
+                            NIS
                         </button>
                     </div>
-                    
+
                     <!-- Search Bar -->
-                    <div class="search-container flex items-center gap-3 p-3 rounded-2xl animate-fadeInUp" style="animation-delay: 0.6s;">
-                        <div class="flex items-center w-full">
-                            <span class="text-gray-400 px-4 text-lg">
-                                <i class="fas fa-search"></i>
+                    <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 flex items-center gap-3 shadow-sm">
+                        <div class="flex items-center w-full gap-2">
+                            <span class="text-slate-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10A7 7 0 103 10a7 7 0 0014 0z" />
+                                </svg>
                             </span>
-                            <input 
+                            <input
                                 id="searchInput"
-                                type="text" 
-                                placeholder="Masukan nama lengkap!!!"
-                                class="input-enhanced w-full border-0 focus:ring-0 text-gray-700 placeholder-gray-400 rounded-lg p-2"
+                                type="text"
+                                placeholder="Masukkan nama lengkap siswa"
+                                class="w-full border-0 focus:ring-0 text-sm text-slate-800 placeholder-slate-400"
                             >
                         </div>
-                        <button id="searchButton" class="btn-enhanced text-white text-center px-8 py-3 rounded-xl font-medium transition transform hover:scale-105">
-                            <i class="fas fa-search mr-2"></i>Cari
+                        <button
+                            id="searchButton"
+                            class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-orange-500 text-white hover:bg-orange-600"
+                        >
+                            Cari
                         </button>
                     </div>
-                    
+
                     <!-- Loading -->
-                    <div id="loadingIndicator" class="hidden mt-6 animate-bounceIn">
-                        <div class="flex justify-center items-center">
-                            <div class="animate-spin rounded-full h-10 w-10 border-b-3 border-blue-600"></div>
-                            <span class="ml-4 text-gray-600 loading-pulse text-lg">Mencari...</span>
+                    <div id="loadingIndicator" class="hidden">
+                        <div class="flex justify-center items-center gap-3 text-sm text-slate-500 mt-4">
+                            <span class="inline-block h-4 w-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
+                            <span>Sedang mencari sertifikat...</span>
                         </div>
                     </div>
                 </div>
             </section>
-        </div>
 
-        <!-- Hasil -->
-        <section id="resultsSection" class="hidden px-6 pb-20">
-            <div class="max-w-6xl mx-auto">
-                <div id="resultsHeader" class="mb-8 text-center">
-                    <h2 class="text-3xl font-bold gradient-text mb-3">Hasil Pencarian</h2>
-                    <p id="resultsCount" class="text-gray-600 text-lg"></p>
-                </div>
-                
-                <div id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Tampilan -->
-                </div>
-                
-                <div id="noResults" class="hidden text-center py-16">
-                    <div class="text-gray-300 mb-6 animate-bounceIn">
-                        <i class="fas fa-search text-8xl"></i>
+            <!-- Hasil -->
+            <section id="resultsSection" class="hidden">
+                <div class="space-y-6">
+                    <div id="resultsHeader" class="text-center space-y-2">
+                        <h2 class="text-xl font-semibold text-slate-900">Hasil pencarian</h2>
+                        <p id="resultsCount" class="text-sm text-slate-500"></p>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-600 mb-3">Tidak ada hasil ditemukan</h3>
-                    <p class="text-gray-500 text-lg">Coba gunakan kata kunci yang berbeda</p>
+
+                    <!-- Filter untuk daftar sertifikat (per siswa) -->
+                    <div id="certFilterBar" class="hidden flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-sm">
+                        <div class="flex-1">
+                            <label for="certFilterInput" class="block text-xs font-semibold text-slate-600 mb-1 text-left">
+                                Filter sertifikat berdasarkan judul / jenis
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-2 flex items-center text-slate-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10A7 7 0 103 10a7 7 0 0014 0z" />
+                                    </svg>
+                                </span>
+                                <input
+                                    id="certFilterInput"
+                                    type="text"
+                                    class="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
+                                    placeholder="Contoh: web programming, BNSP, prestasi..."
+                                >
+                            </div>
+                        </div>
+                        <button
+                            id="backToStudentsButton"
+                            class="hidden inline-flex items-center justify-center px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
+                        >
+                            Kembali ke daftar siswa
+                        </button>
+                    </div>
+
+                    <div id="resultsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        <!-- Kartu sertifikat -->
+                    </div>
+
+                    <div id="noResults" class="hidden text-center py-10 space-y-3">
+                        <p class="text-3xl">🔍</p>
+                        <h3 id="noResultsTitle" class="text-base font-semibold text-slate-700">Tidak ada hasil ditemukan</h3>
+                        <p id="noResultsText" class="text-xs sm:text-sm text-slate-500">
+                            Pastikan nama atau NIS yang kamu masukkan sudah benar, lalu coba lagi.
+                        </p>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </main>
 
         <!-- Modal Sertifikat -->
-        <div id="certificateModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 opacity-0 invisible transition-all duration-300 ease-in-out backdrop-blur-sm">
-            <div id="modalDialog" class="modal-enhanced rounded-2xl max-w-2xl w-full max-h-90vh overflow-y-auto transform scale-95 transition-all duration-300 ease-in-out">
-                <div class="p-8">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-2xl font-bold gradient-text">Detail Sertifikat</h3>
-                        <button id="closeModal" class="text-gray-400 hover:text-gray-600 text-3xl transform hover:scale-110 hover:rotate-90 transition-all duration-300">&times;</button>
+        <div id="certificateModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 opacity-0 invisible transition-opacity duration-150">
+            <div id="modalDialog" class="max-w-xl w-full bg-white rounded-2xl shadow-md border border-slate-200">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-slate-900">Detail Sertifikat</h3>
+                        <button id="closeModal" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
                     </div>
-                    <div id="modalContent">
-                        <!-- Isi Modal -->
-                    </div>
+                    <div id="modalContent"></div>
                 </div>
             </div>
         </div>
@@ -118,36 +148,46 @@
             const resultsContainer = document.getElementById('resultsContainer');
             const resultsCount = document.getElementById('resultsCount');
             const noResults = document.getElementById('noResults');
+            const certFilterBar = document.getElementById('certFilterBar');
+            const certFilterInput = document.getElementById('certFilterInput');
+            const backToStudentsButton = document.getElementById('backToStudentsButton');
             const certificateModal = document.getElementById('certificateModal');
             const modalContent = document.getElementById('modalContent');
             const closeModal = document.getElementById('closeModal');
             
             let currentSearchType = 'nama';
+            let currentResults = [];
+            let currentStudents = [];
+            let currentStudentContext = null;
             
             // Setup CSRF token for AJAX requests
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             
             function setActiveTab(activeTab, inactiveTab, placeholder, searchType) {
-                // Aktifkan tab yang dipilih
-                activeTab.classList.add('active');
-                inactiveTab.classList.remove('active');
+                // Style tab aktif
+                activeTab.classList.add('bg-orange-500', 'text-white');
+                activeTab.classList.remove('text-slate-600');
+                
+                // Style tab non-aktif
+                inactiveTab.classList.remove('bg-orange-500', 'text-white');
+                inactiveTab.classList.add('text-slate-600');
                 
                 // Ganti placeholder input
                 searchInput.setAttribute('placeholder', placeholder);
                 searchInput.value = '';
                 currentSearchType = searchType;
                 
-                // Hide results when switching tabs
+                // Sembunyikan hasil saat ganti tab
                 resultsSection.classList.add('hidden');
             }
             
             // Tab event listeners
             tabNama.addEventListener('click', () => {
-                setActiveTab(tabNama, tabNis, 'Masukan nama lengkap!!!', 'nama');
+                setActiveTab(tabNama, tabNis, 'Masukkan nama lengkap siswa', 'nama');
             });
             
             tabNis.addEventListener('click', () => {
-                setActiveTab(tabNis, tabNama, 'Masukan NIS lengkap!!!', 'nis');
+                setActiveTab(tabNis, tabNama, 'Masukkan NIS lengkap siswa', 'nis');
             });
             
             // Search function
@@ -155,7 +195,13 @@
                 const searchTerm = searchInput.value.trim();
                 
                 if (searchTerm === '') {
-                    alert('Masukkan kata kunci pencarian');
+                    Swal.fire({
+                        title: 'Pencarian Kosong',
+                        text: 'Masukkan kata kunci pencarian terlebih dahulu.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK',
+                        customClass: { popup: 'rounded-2xl' }
+                    });
                     return;
                 }
                 
@@ -181,76 +227,368 @@
                     loadingIndicator.classList.add('hidden');
                     
                     if (data.success) {
-                        displayResults(data.data, searchTerm);
+                        currentResults = Array.isArray(data.data) ? data.data : [];
+                        currentStudents = [];
+                        currentStudentContext = null;
+                        displayResults(currentResults, searchTerm, data.meta || {});
                     } else {
-                        alert('Error: ' + (data.message || 'Terjadi kesalahan'));
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.message || 'Terjadi kesalahan.',
+                            icon: 'error',
+                            confirmButtonText: 'Mengerti',
+                            customClass: { popup: 'rounded-2xl' }
+                        });
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     loadingIndicator.classList.add('hidden');
-                    alert('Terjadi kesalahan koneksi');
+                    Swal.fire({
+                        title: 'Kesalahan Koneksi',
+                        text: 'Tidak dapat terhubung ke server. Coba lagi nanti.',
+                        icon: 'error',
+                        confirmButtonText: 'Mengerti',
+                        customClass: { popup: 'rounded-2xl' }
+                    });
                 });
             }
             
-            function displayResults(results, searchTerm) {
+            function displayResults(results, searchTerm, meta = {}) {
                 resultsContainer.innerHTML = '';
+                if (certFilterBar) {
+                    certFilterBar.classList.add('hidden');
+                }
+                if (certFilterInput) {
+                    certFilterInput.value = '';
+                }
+                if (backToStudentsButton) {
+                    backToStudentsButton.classList.add('hidden');
+                }
+
+                const siswaList = Array.isArray(meta.siswa_tanpa_sertifikat) ? meta.siswa_tanpa_sertifikat : [];
+                
+                // Jika tidak ada sertifikat tapi ada siswa, tampilkan kartu siswa tanpa sertifikat
+                if (results.length === 0 && siswaList.length > 0) {
+                    noResults.classList.add('hidden');
+                    resultsContainer.classList.remove('hidden');
+                    resultsCount.textContent = 'Ditemukan ' + siswaList.length + ' siswa, namun belum ada sertifikat yang tercatat untuk: "' + searchTerm + '"';
+
+                    const titleEl = document.getElementById('noResultsTitle');
+                    const textEl = document.getElementById('noResultsText');
+                    if (titleEl) {
+                        titleEl.textContent = 'Siswa ditemukan, sertifikat belum tersedia';
+                    }
+                    if (textEl) {
+                        textEl.textContent = 'Data siswa ada di sistem, tetapi sertifikatnya belum diinput oleh sekolah. Sertifikat akan muncul di sini setelah diunggah oleh admin.';
+                    }
+
+                    siswaList.forEach((siswa, index) => {
+                        setTimeout(() => {
+                            const card = createStudentNoCertCard(siswa);
+                            card.classList.add('results-enter');
+                            resultsContainer.appendChild(card);
+
+                            setTimeout(() => {
+                                card.classList.remove('results-enter');
+                                card.classList.add('results-enter-active');
+                            }, 10);
+                        }, index * 100);
+                    });
+
+                    resultsSection.classList.remove('hidden');
+                    return;
+                }
                 
                 if (results.length === 0) {
                     noResults.classList.remove('hidden');
                     resultsContainer.classList.add('hidden');
-                    resultsCount.textContent = 'Tidak ada hasil untuk: "' + searchTerm + '"';
+                    const titleEl = document.getElementById('noResultsTitle');
+                    const textEl = document.getElementById('noResultsText');
+
+                    if (meta.has_siswa_tanpa_sertifikat) {
+                        const jumlah = meta.jumlah_siswa_tanpa_sertifikat || 0;
+                        resultsCount.textContent = 'Ditemukan ' + jumlah + ' siswa, namun belum ada sertifikat yang tercatat untuk: "' + searchTerm + '"';
+                        if (titleEl) {
+                            titleEl.textContent = 'Siswa ditemukan, sertifikat belum tersedia';
+                        }
+                        if (textEl) {
+                            textEl.textContent = 'Data siswa ada di sistem, tetapi sertifikatnya belum diinput oleh sekolah. Silakan hubungi admin atau wali kelas jika diperlukan.';
+                        }
+                    } else {
+                        resultsCount.textContent = 'Tidak ada hasil untuk: "' + searchTerm + '"';
+                        if (titleEl) {
+                            titleEl.textContent = 'Tidak ada hasil ditemukan';
+                        }
+                        if (textEl) {
+                            textEl.textContent = 'Pastikan nama atau NIS yang kamu masukkan sudah benar, lalu coba lagi.';
+                        }
+                    }
                 } else {
+                    // Jika cari berdasarkan nama, kelompokkan dulu berdasarkan siswa
+                    if (currentSearchType === 'nama') {
+                        const byNis = {};
+                        results.forEach(cert => {
+                            const nis = cert.nis || '-';
+                            if (!byNis[nis]) {
+                                byNis[nis] = {
+                                    nis,
+                                    nama: cert.nama_siswa || 'Tidak diketahui',
+                                    kelas: cert.kelas || null,
+                                    jurusan: cert.jurusan || null,
+                                    count: 0,
+                                };
+                            }
+                            byNis[nis].count++;
+                        });
+
+                        const students = Object.values(byNis);
+                        currentStudents = students;
+
+                        if (students.length > 1) {
+                            renderStudentList(students, searchTerm);
+                            resultsSection.classList.remove('hidden');
+                            return;
+                        }
+
+                        const student = students[0];
+                        const studentCerts = results.filter(cert => cert.nis === student.nis);
+                        renderCertificatesForStudent(student, studentCerts);
+                        resultsSection.classList.remove('hidden');
+                        return;
+                    }
+
+                    // Jika cari berdasarkan NIS, anggap 1 siswa dengan banyak sertifikat
+                    if (currentSearchType === 'nis' && results.length > 0) {
+                        const first = results[0];
+                        const student = {
+                            nis: first.nis || '-',
+                            nama: first.nama_siswa || 'Tidak diketahui',
+                            kelas: first.kelas || null,
+                            jurusan: first.jurusan || null,
+                            count: results.length,
+                        };
+                        renderCertificatesForStudent(student, results);
+                        resultsSection.classList.remove('hidden');
+                        return;
+                    }
+
+                    // Fallback: tampilkan semua sertifikat apa adanya
                     noResults.classList.add('hidden');
                     resultsContainer.classList.remove('hidden');
                     resultsCount.textContent = 'Ditemukan ' + results.length + ' sertifikat untuk: "' + searchTerm + '"';
                     
-                    // Add stagger animation to results
                     results.forEach((cert, index) => {
                         setTimeout(() => {
                             const card = createCertificateCard(cert);
                             card.classList.add('results-enter');
                             resultsContainer.appendChild(card);
                             
-                            // Trigger animation
                             setTimeout(() => {
                                 card.classList.remove('results-enter');
                                 card.classList.add('results-enter-active');
                             }, 10);
-                        }, index * 100); // Stagger delay
+                        }, index * 100);
                     });
                 }
                 
                 resultsSection.classList.remove('hidden');
             }
+
+            function renderStudentList(students, searchTerm) {
+                noResults.classList.add('hidden');
+                resultsContainer.classList.remove('hidden');
+                resultsContainer.innerHTML = '';
+                resultsCount.textContent = 'Ditemukan ' + students.length + ' siswa untuk: "' + searchTerm + '". Pilih salah satu untuk melihat sertifikatnya.';
+
+                students.forEach((student, index) => {
+                    setTimeout(() => {
+                        const card = createStudentResultCard(student);
+                        card.classList.add('results-enter');
+                        resultsContainer.appendChild(card);
+
+                        setTimeout(() => {
+                            card.classList.remove('results-enter');
+                            card.classList.add('results-enter-active');
+                        }, 10);
+                    }, index * 80);
+                });
+            }
+
+            function renderCertificatesForStudent(student, certificates, fromStudentsList = false) {
+                noResults.classList.add('hidden');
+                resultsContainer.classList.remove('hidden');
+
+                currentStudentContext = {
+                    nis: student.nis,
+                    nama: student.nama,
+                    kelas: student.kelas,
+                    jurusan: student.jurusan,
+                    certificates: certificates.slice(),
+                };
+
+                const detailParts = [];
+                if (student.kelas) detailParts.push(student.kelas);
+                if (student.jurusan) detailParts.push(student.jurusan);
+                const detailText = detailParts.length ? ' · ' + detailParts.join(' · ') : '';
+
+                resultsCount.textContent = 'Ditemukan ' + certificates.length + ' sertifikat untuk: ' + student.nama + ' (NIS ' + student.nis + ')' + detailText;
+
+                if (certFilterBar) {
+                    certFilterBar.classList.remove('hidden');
+                }
+                if (certFilterInput) {
+                    certFilterInput.value = '';
+                }
+                if (backToStudentsButton) {
+                    const shouldShowBack = fromStudentsList || (currentSearchType === 'nama' && currentStudents.length > 1);
+                    backToStudentsButton.classList.toggle('hidden', !shouldShowBack);
+                }
+
+                resultsContainer.innerHTML = '';
+
+                certificates.forEach((cert, index) => {
+                    setTimeout(() => {
+                        const card = createCertificateCard(cert);
+                        card.classList.add('results-enter');
+                        resultsContainer.appendChild(card);
+
+                        setTimeout(() => {
+                            card.classList.remove('results-enter');
+                            card.classList.add('results-enter-active');
+                        }, 10);
+                    }, index * 80);
+                });
+            }
+
+            function applyCertificateFilter() {
+                if (!currentStudentContext) return;
+
+                const term = (certFilterInput?.value || '').trim().toLowerCase();
+                const base = currentStudentContext.certificates || [];
+
+                const filtered = term
+                    ? base.filter(cert => {
+                        const title = (cert.judul_sertifikat || '').toLowerCase();
+                        const jenis = (cert.jenis_sertifikat || '').toLowerCase();
+                        return title.includes(term) || jenis.includes(term);
+                    })
+                    : base;
+
+                resultsContainer.innerHTML = '';
+
+                filtered.forEach((cert, index) => {
+                    setTimeout(() => {
+                        const card = createCertificateCard(cert);
+                        card.classList.add('results-enter');
+                        resultsContainer.appendChild(card);
+
+                        setTimeout(() => {
+                            card.classList.remove('results-enter');
+                            card.classList.add('results-enter-active');
+                        }, 10);
+                    }, index * 60);
+                });
+            }
             
             function createCertificateCard(cert) {
+                const dateText = cert.tanggal_diraih
+                    ? new Date(cert.tanggal_diraih).toLocaleDateString('id-ID')
+                    : '-';
                 const card = document.createElement('div');
-                card.className = 'card-enhanced rounded-2xl overflow-hidden cursor-pointer group';
+                card.className = 'rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer';
                 card.onclick = () => showCertificateDetail(cert.id);
                 
                 card.innerHTML = `
                     <div class="p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="cert-badge text-white px-4 py-2 rounded-full text-sm font-semibold animate-glow">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="inline-flex items-center px-3 py-1 rounded-full bg-orange-500 text-white text-xs font-semibold">
                                 ${cert.jenis_sertifikat}
                             </div>
-                            <div class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                                ${new Date(cert.tanggal_diraih).toLocaleDateString('id-ID')}
+                            <div class="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+                                ${dateText}
                             </div>
                         </div>
+                        <h3 class="font-semibold text-sm text-slate-900 mb-1 line-clamp-2">${cert.judul_sertifikat}</h3>
+                        <p class="text-xs text-slate-500 mb-1">${cert.nama_siswa}</p>
+                        <p class="text-[11px] text-slate-400 mb-4">NIS: ${cert.nis}</p>
                         
-                        <h3 class="font-bold text-xl text-gray-800 mb-3 group-hover:text-blue-600 transition-colors duration-300">${cert.nama_siswa}</h3>
-                        <p class="text-gray-600 text-sm mb-4 bg-gray-50 px-3 py-2 rounded-lg">NIS: ${cert.nis}</p>
-                        
-                        <div class="mt-6 flex items-center text-blue-600 hover:text-blue-800 transition-all duration-300 group-hover:transform group-hover:translate-x-2">
-                            <i class="fas fa-eye mr-3 text-lg transform group-hover:scale-110 transition-transform duration-200"></i>
-                            <span class="font-semibold">Lihat Detail</span>
-                            <i class="fas fa-arrow-right ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></i>
+                        <div class="mt-2 flex items-center text-xs font-medium text-orange-600">
+                            <i class="fas fa-eye mr-2"></i>
+                            <span>Lihat detail sertifikat</span>
                         </div>
                     </div>
                 `;
                 
+                return card;
+            }
+
+            function createStudentResultCard(student) {
+                const card = document.createElement('div');
+                card.className = 'rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer';
+                card.onclick = () => {
+                    const certs = currentResults.filter(c => c.nis === student.nis);
+                    renderCertificatesForStudent(student, certs, true);
+                };
+
+                const detailParts = [];
+                if (student.kelas) detailParts.push(student.kelas);
+                if (student.jurusan) detailParts.push(student.jurusan);
+                const detailText = detailParts.length ? detailParts.join(' · ') : '-';
+
+                card.innerHTML = `
+                    <div class="p-5 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-slate-900">${student.nama}</p>
+                                <p class="text-xs text-slate-500">NIS: ${student.nis}</p>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
+                                ${student.count} sertifikat
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-500">${detailText}</p>
+                        <div class="mt-2 text-xs font-medium text-orange-600 flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                            <span>Lihat daftar sertifikat</span>
+                        </div>
+                    </div>
+                `;
+
+                return card;
+            }
+
+            function createStudentNoCertCard(siswa) {
+                const card = document.createElement('div');
+                card.className = 'rounded-2xl border border-dashed border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow';
+
+                card.innerHTML = `
+                    <div class="p-6 flex flex-col gap-3">
+                        <div class="flex items-center justify-between">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
+                                Data siswa ditemukan
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-[11px] font-semibold">
+                                Belum ada sertifikat
+                            </span>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-base text-slate-900 mb-1">${siswa.nama}</h3>
+                            <p class="text-xs text-slate-500 mb-1">NIS: ${siswa.nis}</p>
+                            <p class="text-xs text-slate-500">
+                                ${siswa.kelas ? 'Kelas: ' + siswa.kelas + ' · ' : ''}
+                                ${siswa.jurusan ? 'Jurusan: ' + siswa.jurusan : ''}
+                            </p>
+                        </div>
+                        <p class="mt-2 text-[11px] text-slate-500">
+                            Sertifikat untuk siswa ini belum tercatat di sistem. Jika kamu merasa sudah menerima sertifikat,
+                            silakan hubungi admin atau wali kelas untuk memastikan datanya sudah diinput.
+                        </p>
+                    </div>
+                `;
+
                 return card;
             }
             
@@ -267,67 +605,105 @@
                     if (data.success) {
                         displayCertificateModal(data.data);
                     } else {
-                        alert('Error: ' + data.message);
+                        Swal.fire({
+                            title: 'Error',
+                            text: data.message,
+                            icon: 'error',
+                            confirmButtonText: 'Mengerti',
+                            customClass: { popup: 'rounded-2xl' }
+                        });
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Terjadi kesalahan saat mengambil detail');
+                    Swal.fire({
+                        title: 'Kesalahan',
+                        text: 'Terjadi kesalahan saat mengambil detail sertifikat.',
+                        icon: 'error',
+                        confirmButtonText: 'Mengerti',
+                        customClass: { popup: 'rounded-2xl' }
+                    });
                 });
             }
             
             function displayCertificateModal(cert) {
+                const dateText = cert.tanggal_diraih
+                    ? new Date(cert.tanggal_diraih).toLocaleDateString('id-ID')
+                    : '-';
+
+                const hasPhoto = !!cert.foto_sertifikat;
+
+                const photoSection = hasPhoto
+                    ? `
+                        <div class="neumorphism rounded-2xl p-6">
+                            <img src="{{ asset('storage') }}/${cert.foto_sertifikat}" 
+                                alt="Foto Sertifikat" 
+                                class="max-w-full h-auto rounded-xl mx-auto shadow-2xl hover:shadow-blue-500/25 transition-shadow duration-500"
+                                style="max-height: 300px;">
+                        </div>
+                    `
+                    : `
+                        <div class="neumorphism-inset rounded-2xl p-6 bg-gray-50 flex flex-col items-center justify-center text-center">
+                            <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center mb-3">
+                                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 7l2 12h14l2-12M8 7V4a4 4 0 018 0v3" />
+                                </svg>
+                            </div>
+                            <p class="text-sm font-medium text-gray-700">Belum ada file sertifikat yang diunggah.</p>
+                            <p class="mt-1 text-xs text-gray-500">Hubungi admin sekolah jika kamu membutuhkan salinan file sertifikat.</p>
+                        </div>
+                    `;
+
                 modalContent.innerHTML = `
-                    <div class="space-y-6 opacity-0 animate-fadeInUp">
-                        <div class="text-center mb-8">
-                            <h4 class="text-2xl font-bold gradient-text mb-4 animate-slideInDown">${cert.judul_sertifikat}</h4>
-                            <div class="neumorphism rounded-2xl p-6 transform hover:scale-105 transition-transform duration-500">
-                                <img src="{{ asset('storage') }}/${cert.foto_sertifikat}" 
-                                    alt="Foto Sertifikat" 
-                                    class="max-w-full h-auto rounded-xl mx-auto shadow-2xl hover:shadow-blue-500/25 transition-shadow duration-500"
-                                    style="max-height: 300px;">
+                    <div class="space-y-6">
+                        <div class="text-center mb-4">
+                            <h4 class="text-lg font-semibold text-slate-900 mb-3">${cert.judul_sertifikat}</h4>
+                            ${photoSection}
+                            <div class="mt-4 flex flex-wrap justify-center gap-3">
+                                <a
+                                    href="{{ url('/sertifikat') }}/${cert.id}/kartu"
+                                    target="_blank"
+                                    class="inline-flex items-center px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-orange-500 text-white hover:bg-orange-600"
+                                >
+                                    Kartu & QR / Cetak
+                                </a>
+                                ${hasPhoto ? `
+                                    <a
+                                        href="{{ asset('storage') }}/${cert.foto_sertifikat}"
+                                        download
+                                        class="inline-flex items-center px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
+                                    >
+                                        Unduh gambar sertifikat
+                                    </a>
+                                ` : ''}
                             </div>
                         </div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="animate-slideInLeft neumorphism-inset rounded-xl p-4">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Siswa</label>
-                                <p class="text-gray-900 font-bold text-lg">${cert.nama}</p>
+	                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="rounded-xl border border-slate-200 p-4 bg-slate-50">
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Nama siswa</label>
+                                <p class="text-sm font-medium text-slate-900">${cert.nama}</p>
                             </div>
-                            <div class="animate-slideInRight neumorphism-inset rounded-xl p-4">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">NIS</label>
-                                <p class="text-gray-900 text-lg">${cert.nis}</p>
+                            <div class="rounded-xl border border-slate-200 p-4 bg-slate-50">
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">NIS</label>
+                                <p class="text-sm font-medium text-slate-900">${cert.nis}</p>
                             </div>
-                            <div class="animate-slideInLeft neumorphism-inset rounded-xl p-4" style="animation-delay: 0.1s;">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Jenis Sertifikat</label>
-                                <p class="text-gray-900 text-lg">${cert.jenis_sertifikat}</p>
+                            <div class="rounded-xl border border-slate-200 p-4 bg-slate-50">
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis sertifikat</label>
+                                <p class="text-sm font-medium text-slate-900">${cert.jenis_sertifikat}</p>
                             </div>
-                            <div class="animate-slideInRight neumorphism-inset rounded-xl p-4" style="animation-delay: 0.1s;">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal Diraih</label>
-                                <p class="text-gray-900 text-lg">${new Date(cert.tanggal_diraih).toLocaleDateString('id-ID')}</p>
+                            <div class="rounded-xl border border-slate-200 p-4 bg-slate-50">
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal diraih</label>
+                                <p class="text-sm font-medium text-slate-900">${dateText}</p>
                             </div>
                         </div>
                     </div>
                 `;
                 
-                // Show modal with animation
-                const modal = certificateModal;
-                const dialog = document.getElementById('modalDialog');
-                
-                modal.classList.remove('opacity-0', 'invisible');
-                modal.classList.add('opacity-100', 'visible');
-                
-                dialog.classList.remove('scale-95');
-                dialog.classList.add('scale-100');
-                
-                // Add stagger animation to modal content
-                setTimeout(() => {
-                    const content = modalContent.querySelector('.opacity-0');
-                    if (content) {
-                        content.classList.remove('opacity-0');
-                        content.classList.add('opacity-100');
-                    }
-                }, 100);
+	                // Show modal (tanpa animasi lebay)
+	                const modal = certificateModal;
+	                modal.classList.remove('opacity-0', 'invisible');
+	                modal.classList.add('opacity-100', 'visible');
             }
             
             // Event listeners
@@ -338,6 +714,19 @@
                     performSearch();
                 }
             });
+
+            if (certFilterInput) {
+                certFilterInput.addEventListener('input', applyCertificateFilter);
+            }
+
+            if (backToStudentsButton) {
+                backToStudentsButton.addEventListener('click', function() {
+                    if (currentSearchType === 'nama' && currentStudents.length > 0) {
+                        const term = searchInput.value.trim();
+                        renderStudentList(currentStudents, term || '');
+                    }
+                });
+            }
             
             closeModal.addEventListener('click', () => {
                 closeModalWithAnimation();
@@ -350,15 +739,10 @@
             });
             
             // close modal
-            function closeModalWithAnimation() {
-                const modal = certificateModal;
-                const dialog = document.getElementById('modalDialog');
-                
-                dialog.classList.remove('scale-100');
-                dialog.classList.add('scale-95');
-                
-                modal.classList.remove('opacity-100', 'visible');
-                modal.classList.add('opacity-0', 'invisible');
+	            function closeModalWithAnimation() {
+	                const modal = certificateModal;
+	                modal.classList.remove('opacity-100', 'visible');
+	                modal.classList.add('opacity-0', 'invisible');
             }
             
             document.addEventListener('keydown', function(e) {
