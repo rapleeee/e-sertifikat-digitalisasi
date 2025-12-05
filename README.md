@@ -1,61 +1,215 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Certisat – Sistem Manajemen Sertifikat Siswa
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Certisat adalah aplikasi berbasis Laravel untuk mengelola sertifikat siswa di lingkungan sekolah.
 
-## About Laravel
+Fokus utamanya:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Kelola data siswa (NISN, NIS, nama, jenis kelamin, kelas, jurusan, angkatan, status).
+- Kelola sertifikat (per siswa dan multi siswa).
+- Upload massal foto sertifikat berdasarkan NIS di nama file.
+- Pencarian sertifikat publik dengan tampilan kartu + detail.
+- Verifikasi sertifikat via QR code dan halaman kartu sertifikat.
+- Fitur laporan (ticketing) antara pengguna dan admin.
+- Dashboard analitik dan manajemen pengguna dengan beberapa role.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Fitur Utama
 
-## Learning Laravel
+- **Manajemen Siswa**
+  - CRUD siswa.
+  - Pencarian berdasarkan nama/NIS.
+  - Filter: jenis kelamin, kelas, jurusan, angkatan, status.
+  - Bulk hapus siswa (beserta sertifikatnya).
+  - Bulk naik kelas tanpa mengubah jurusan.
+  - Import data siswa dari Excel dengan template, preview, dan penandaan error per baris.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Manajemen Sertifikat**
+  - Tambah sertifikat per siswa (mode “Per Siswa”).
+  - Tambah sertifikat multi siswa (mode “Multi Siswa” – satu judul & tanggal ke banyak siswa).
+  - Upload massal foto sertifikat:
+    - Nama file = NIS (misal `123456789.jpg`).
+    - Sistem otomatis mencari siswa dan membuat sertifikat baru.
+  - Halaman detail sertifikat dengan:
+    - Informasi siswa, jenis, judul, tanggal.
+    - Preview foto, tombol lihat/unduh foto.
+    - Tombol cepat untuk kartu & cetak sertifikat.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- **Pencarian Sertifikat Publik**
+  - URL: `/pencarian-sertifikat`.
+  - Pencarian berdasarkan:
+    - Nama siswa.
+    - NIS.
+  - Jika banyak siswa dengan nama mirip:
+    - Ditampilkan dulu daftar siswa (nama, NIS, kelas, jurusan, jumlah sertifikat).
+    - User memilih siswa → muncul daftar sertifikat milik siswa tersebut.
+  - Di tampilan sertifikat per siswa:
+    - Daftar sertifikat dalam bentuk kartu.
+    - Filter client-side berdasarkan judul / jenis (misal “web programming”).
+  - Modal detail sertifikat berisi:
+    - Informasi lengkap sertifikat.
+    - Tombol “Kartu & QR / Cetak”.
+    - Tombol “Unduh gambar sertifikat” (jika foto tersedia).
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **QR Code & Kartu Sertifikat**
+  - Setiap sertifikat memiliki:
+    - Halaman kartu: `GET /sertifikat/{id}/kartu` (`route('sertifikat.card')`).
+    - Kartu menampilkan:
+      - Data siswa & sertifikat.
+      - QR code yang mengarah ke `route('sertifikat.show', $sertifikat)`.
+      - Tombol cetak / simpan PDF (via print browser).
+  - Di halaman detail admin (`/sertifikat/{id}`):
+    - Bila ada foto sertifikat, QR kecil di-overlay di pojok foto untuk verifikasi ketika dicetak.
 
-## Laravel Sponsors
+- **Laporan (Ticketing)**
+  - Public form `/laporan`:
+    - Nama, email, NIS (opsional), subjek, pesan.
+    - Email digunakan sebagai tujuan balasan/konfirmasi.
+  - Admin:
+    - `/laporan-admin` – daftar laporan dengan status open/closed.
+    - `/laporan-admin/{laporan}` – tampilan chat-style antara user dan admin.
+    - Admin bisa membalas dan mengubah status laporan.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- **Dashboard**
+  - Ringkasan:
+    - Total sertifikat.
+    - Total siswa.
+    - Sertifikat bulan ini.
+    - Admin aktif.
+  - Grafik sederhana:
+    - Sertifikat 12 bulan terakhir.
+    - Distribusi sertifikat per jurusan.
+  - Daftar sertifikat terbaru dan siswa dengan sertifikat.
 
-### Premium Partners
+- **Manajemen User & Role**
+  - Role yang tersedia:
+    - `super_admin`, `admin`, `guru`, `staf`, `yayasan`, `perusahaan`.
+  - Halaman Manajemen User (`/users`, gate `manage-users`):
+    - Tambah pengguna baru (nama, email, role, password).
+    - Ubah role pengguna yang sudah ada.
+  - Hak akses (tingkat tinggi):
+    - `super_admin` & `admin`:
+      - Bisa mengelola user (manajemen role).
+      - Mengelola data siswa, sertifikat, laporan, dsb.
+    - `guru` & `staf`:
+      - Umumnya dipakai untuk kelola laporan dan fitur administratif lain (bisa disesuaikan).
+    - `yayasan`:
+      - Akses bersifat pantau (read-only, tanpa edit/hapus) – dapat dikembangkan lebih lanjut sesuai kebutuhan.
+    - `perusahaan`:
+      - Bisa dipakai untuk role eksternal (misal mitra industri) jika diperlukan di masa depan.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## Persyaratan
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- PHP 8.1+ (mengikuti versi Laravel yang digunakan).
+- Composer.
+- Node.js & npm.
+- Database: MySQL/MariaDB (atau yang sesuai dengan konfigurasi `.env`).
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Instalasi & Setup
 
-## Security Vulnerabilities
+1. **Clone repo & install dependency**
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+   ```bash
+   git clone <repo-url> e-certifikat
+   cd e-certifikat
+   composer install
+   npm install
+   ```
 
-## License
+2. **Konfigurasi environment**
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+   Atur di `.env`:
+
+   - `APP_NAME` – misal `Certisat`.
+   - `APP_URL` – misal `http://localhost:8000`.
+   - `DB_*` – koneksi database.
+   - `MAIL_*` – konfigurasi SMTP (Mailtrap/Gmail) jika ingin mengaktifkan notifikasi email laporan.
+
+3. **Migrasi & seeding**
+
+   ```bash
+   php artisan migrate
+   php artisan db:seed
+   ```
+
+   Seeder default (`DatabaseSeeder`) akan membuat user admin:
+
+   - Email: `test@keren.com`
+   - Password: `password`
+   - Role: `admin`
+
+   Selain itu, ada migrasi tambahan yang memperluas enum `role` pada tabel `users` menjadi:
+
+   - `super_admin`, `admin`, `guru`, `staf`, `yayasan`, `perusahaan`.
+
+4. **Jalankan aplikasi**
+
+   Untuk development:
+
+   ```bash
+   npm run dev
+   php artisan serve
+   ```
+
+   Akses aplikasi di `http://localhost:8000`.
+
+---
+
+## Alur Penggunaan Singkat
+
+- **Login sebagai admin/super_admin**
+  - Gunakan akun seeder atau akun yang sudah dibuat di Manajemen User.
+  - Setelah login, masuk ke `/dashboard`.
+
+- **Kelola siswa**
+  - `/siswa`:
+    - Tambah siswa.
+    - Edit/hapus siswa.
+    - Bulk hapus / bulk naik kelas.
+    - Import Excel → preview → konfirmasi.
+
+- **Kelola sertifikat**
+  - `/sertifikat/create`:
+    - Tab “Per Siswa” → sertifikat individual.
+    - Tab “Multi Siswa” → sertifikat yang sama ke banyak siswa (dengan checkbox).
+  - `/sertifikat/upload`:
+    - Upload banyak foto sertifikat sekaligus (nama file = NIS).
+  - Detail sertifikat:
+    - Lihat data, lampiran, tombol kartu & cetak, overlay QR di foto.
+
+- **Pencarian & verifikasi publik**
+  - `/pencarian-sertifikat`:
+    - Cari by nama atau NIS.
+    - Pilih siswa (jika nama pasaran).
+    - Filter sertifikat milik siswa itu berdasarkan judul/jenis.
+    - Buka modal → tombol “Kartu & QR / Cetak” dan unduh foto.
+  - Kartu sertifikat (`/sertifikat/{id}/kartu`):
+    - Dapat diprint atau discan QR-nya untuk verifikasi.
+
+- **Laporan**
+  - Public: `/laporan`.
+  - Admin: `/laporan-admin` dan `/laporan-admin/{laporan}`.
+
+---
+
+## Catatan Pengembangan
+
+- Aplikasi ini menggunakan:
+  - Laravel (backend).
+  - Tailwind CSS (UI).
+  - Alpine.js (interaksi ringan).
+  - SweetAlert2 (konfirmasi & notifikasi).
+- Hampir semua aksi penting:
+  - Mengembalikan flash `success` / `error` yang ditampilkan di view (banner atau dialog).
+  - Dibuat supaya pengalaman pengguna jelas (tidak ada aksi besar tanpa feedback).
+
+Silakan sesuaikan README ini jika ada penambahan fitur baru atau perubahan alur kerja di aplikasi.***
