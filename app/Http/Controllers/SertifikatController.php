@@ -426,7 +426,6 @@ class SertifikatController extends Controller
 
             $hasSiswaTanpaSertifikat = false;
             $jumlahSiswaTanpaSertifikat = 0;
-            $siswaTanpaSertifikat = [];
 
             if ($formattedResults->isEmpty()) {
                 $siswaQuery = Siswa::query();
@@ -439,24 +438,6 @@ class SertifikatController extends Controller
 
                 $jumlahSiswaTanpaSertifikat = $siswaQuery->count();
                 $hasSiswaTanpaSertifikat = $jumlahSiswaTanpaSertifikat > 0;
-
-                if ($hasSiswaTanpaSertifikat) {
-                    $siswaTanpaSertifikat = $siswaQuery
-                        ->orderBy('nama')
-                        ->take(10)
-                        ->get(['id', 'nama', 'nis', 'kelas', 'jurusan'])
-                        ->map(function (Siswa $siswa) {
-                            return [
-                                'id' => $siswa->id,
-                                'nama' => $siswa->nama,
-                                'nis' => $siswa->nis,
-                                'kelas' => $siswa->kelas,
-                                'jurusan' => $siswa->jurusan,
-                            ];
-                        })
-                        ->values()
-                        ->all();
-                }
             }
 
             return response()->json([
@@ -466,7 +447,7 @@ class SertifikatController extends Controller
                 'meta' => [
                     'has_siswa_tanpa_sertifikat' => $hasSiswaTanpaSertifikat,
                     'jumlah_siswa_tanpa_sertifikat' => $jumlahSiswaTanpaSertifikat,
-                    'siswa_tanpa_sertifikat' => $siswaTanpaSertifikat,
+                    'siswa_tanpa_sertifikat' => [],
                 ],
             ]);
 
@@ -476,6 +457,24 @@ class SertifikatController extends Controller
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function publicShow(Sertifikat $sertifikat): JsonResponse
+    {
+        $sertifikat->load('siswa');
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $sertifikat->id,
+                'jenis_sertifikat' => $sertifikat->jenis_sertifikat,
+                'judul_sertifikat' => $sertifikat->judul_sertifikat,
+                'tanggal_diraih' => $sertifikat->tanggal_diraih,
+                'foto_sertifikat' => $sertifikat->foto_sertifikat,
+                'nama' => $sertifikat->siswa?->nama ?? 'N/A',
+                'nis' => $sertifikat->siswa?->nis ?? 'N/A',
+            ],
+        ]);
     }
 
     public function show(Request $request, Sertifikat $sertifikat)
@@ -511,7 +510,8 @@ class SertifikatController extends Controller
     {
         $request->validate(['identifier' => 'required|string']);
 
-        $sertifikat = Sertifikat::where('id', $request->identifier)
+        $sertifikat = Sertifikat::with('siswa')
+            ->where('id', $request->identifier)
             ->orWhere('nis', $request->identifier)
             ->first();
 
@@ -522,7 +522,19 @@ class SertifikatController extends Controller
             ]);
         }
 
-        return response()->json(['success' => true, 'message' => 'Sertifikat valid', 'data' => $sertifikat]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Sertifikat valid',
+            'data' => [
+                'id' => $sertifikat->id,
+                'nis' => $sertifikat->nis,
+                'jenis_sertifikat' => $sertifikat->jenis_sertifikat,
+                'judul_sertifikat' => $sertifikat->judul_sertifikat,
+                'tanggal_diraih' => $sertifikat->tanggal_diraih,
+                'foto_sertifikat' => $sertifikat->foto_sertifikat,
+                'nama' => $sertifikat->siswa?->nama ?? null,
+            ],
+        ]);
     }
 
     // ====== Import Excel ======

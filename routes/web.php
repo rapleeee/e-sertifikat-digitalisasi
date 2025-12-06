@@ -36,6 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('create', [SertifikatController::class, 'create'])->name('create');
         Route::post('store', [SertifikatController::class, 'store'])->name('store');
         Route::post('bulk-store', [SertifikatController::class, 'bulkStore'])->name('bulk-store');
+        Route::get('{sertifikat}/detail', [SertifikatController::class, 'show'])->name('show');
         Route::get('{sertifikat}/edit', [SertifikatController::class, 'edit'])->name('edit');
         Route::put('{sertifikat}', [SertifikatController::class, 'update'])->name('update');
         Route::delete('{sertifikat}', [SertifikatController::class, 'destroy'])->name('destroy');
@@ -81,10 +82,21 @@ Route::get('/cari-sertifikat', [SertifikatController::class, 'search'])->name('s
 Route::post('/cari-sertifikat', [SertifikatController::class, 'doSearch'])->name('sertifikat.do-search');
 
 // API Routes untuk AJAX
-Route::post('/api/sertifikat/search', [SertifikatController::class, 'searchApi'])->name('sertifikat.search.api');
-Route::get('/sertifikat/{sertifikat}', [SertifikatController::class, 'show'])->name('sertifikat.show');
+Route::post(
+    '/api/sertifikat/search',
+    [SertifikatController::class, 'searchApi']
+)->name('sertifikat.search.api')->middleware('throttle:30,1');
+
+Route::get(
+    '/api/sertifikat/{sertifikat}',
+    [SertifikatController::class, 'publicShow']
+)->name('sertifikat.public.show')->middleware('throttle:60,1');
+
 Route::get('/sertifikat/{sertifikat}/kartu', [SertifikatController::class, 'card'])->name('sertifikat.card');
-Route::post('/api/sertifikat/verify', [SertifikatController::class, 'verify'])->name('sertifikat.verify');
+Route::post(
+    '/api/sertifikat/verify',
+    [SertifikatController::class, 'verify']
+)->name('sertifikat.verify')->middleware('throttle:60,1');
 
 
 require __DIR__ . '/auth.php';

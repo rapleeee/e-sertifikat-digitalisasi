@@ -593,7 +593,7 @@
             }
             
             function showCertificateDetail(certId) {
-                fetch(`{{ url('/sertifikat') }}/${certId}`, {
+                fetch(`{{ url('/api/sertifikat') }}/${certId}`, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',

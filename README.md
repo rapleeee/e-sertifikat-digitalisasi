@@ -56,7 +56,7 @@ Fokus utamanya:
     - Halaman kartu: `GET /sertifikat/{id}/kartu` (`route('sertifikat.card')`).
     - Kartu menampilkan:
       - Data siswa & sertifikat.
-      - QR code yang mengarah ke `route('sertifikat.show', $sertifikat)`.
+      - QR code yang mengarah ke `route('sertifikat.card', $sertifikat)`.
       - Tombol cetak / simpan PDF (via print browser).
   - Di halaman detail admin (`/sertifikat/{id}`):
     - Bila ada foto sertifikat, QR kecil di-overlay di pojok foto untuk verifikasi ketika dicetak.

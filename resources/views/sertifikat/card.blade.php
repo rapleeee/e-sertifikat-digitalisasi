@@ -311,7 +311,7 @@
                 return;
             }
 
-            var url = @json(route('sertifikat.show', $sertifikat));
+            var url = @json(route('sertifikat.card', $sertifikat));
 
             new QRCode(el, {
                 text: url,
