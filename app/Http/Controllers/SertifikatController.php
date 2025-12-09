@@ -103,6 +103,10 @@ class SertifikatController extends Controller
             $prefilledSiswa = $siswas->firstWhere('id', (int) $request->input('siswa_id'));
         }
 
+        if ($request->filled('nis')) {
+            $prefilledSiswa = $siswas->firstWhere('nis', $request->input('nis'));
+        }
+
         return view('sertifikat.create', compact('siswas', 'prefilledSiswa', 'kelasOptions', 'jurusanOptions'));
     }
 
