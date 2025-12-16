@@ -386,7 +386,7 @@
           const controller = new AbortController();
           const timeoutId = setTimeout(() => {
             controller.abort();
-          }, 120000); // 2 minutes timeout per file (120 seconds)
+          }, 180000); // 3 minutes timeout per file (180 seconds) - untuk banyak file
           
           // Upload this file
           fetch('{{ route('sertifikat.upload.massal') }}', {
