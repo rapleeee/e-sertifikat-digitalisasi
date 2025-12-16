@@ -19,7 +19,7 @@ class BulkStoreSertifikatRequest extends FormRequest
             'jenis_sertifikat' => ['required', 'string', 'max:150'],
             'judul_sertifikat' => ['required', 'string', 'max:255'],
             'tanggal_diraih' => ['required', 'date', 'before_or_equal:today'],
-            'foto_sertifikat' => ['nullable', 'file', 'image', 'mimes:jpeg,jpg,png', 'max:2048'],
+            'foto_sertifikat' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:10240'],
         ];
     }
 

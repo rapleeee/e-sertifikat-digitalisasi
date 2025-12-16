@@ -127,12 +127,17 @@
                                 
                                 @if($isPdf)
                                     <div class="bg-white p-4">
-                                        <div id="pdf-viewer" class="border border-slate-200 rounded-lg bg-gray-100" style="height: 400px; overflow: auto;">
-                                            <canvas id="pdf-canvas"></canvas>
+                                        <div id="pdf-viewer" class="border border-slate-200 rounded-lg bg-gray-100 flex items-center justify-center" style="height: 500px; overflow: auto;">
+                                            <canvas id="pdf-canvas" style="display: block; margin: auto;"></canvas>
                                         </div>
-                                        <p class="text-xs text-slate-500 text-center mt-2">
-                                            PDF Viewer - Gulir untuk melihat halaman lainnya
-                                        </p>
+                                        <div class="flex items-center justify-between mt-3">
+                                            <p class="text-xs text-slate-500">
+                                                Gulir mouse atau geser untuk navigasi halaman PDF
+                                            </p>
+                                            <p class="text-xs text-slate-500 font-medium">
+                                                Halaman: <span id="page-number">1</span>
+                                            </p>
+                                        </div>
                                     </div>
                                 @else
                                     <div class="aspect-w-4 aspect-h-3 bg-white relative overflow-hidden">
@@ -174,45 +179,82 @@
         if (!pdfViewer || !canvas) return;
         
         const pdfUrl = '{{ $sertifikat->foto_sertifikat ? Storage::url($sertifikat->foto_sertifikat) : "null" }}';
-        if (pdfUrl === 'null' || !pdfUrl.toLowerCase().endsWith('.pdf')) return;
+        if (pdfUrl === 'null' || !pdfUrl.toLowerCase().includes('.pdf')) return;
         
+        // Setup PDF.js worker
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         
         let pdfDoc = null;
         let currentPage = 1;
+        let isRendering = false;
         
         const loadAndRenderPDF = async () => {
             try {
-                pdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
+                console.log('Loading PDF from:', pdfUrl);
+                // Use getDocument with corsEnabled option
+                const pdf = await pdfjsLib.getDocument({
+                    url: pdfUrl,
+                    withCredentials: false
+                }).promise;
+                
+                pdfDoc = pdf;
+                console.log('PDF loaded successfully. Total pages:', pdfDoc.numPages);
                 renderPage(currentPage);
             } catch (error) {
                 console.error('Error loading PDF:', error);
-                canvas.parentElement.innerHTML = '<div class="p-6 text-center text-red-500">Gagal memuat PDF</div>';
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'p-6 text-center text-red-500 text-sm';
+                errorDiv.textContent = 'Gagal memuat PDF. Coba refresh halaman.';
+                canvas.parentElement.replaceChild(errorDiv, canvas);
             }
         };
         
         const renderPage = async (pageNum) => {
-            if (!pdfDoc || pageNum > pdfDoc.numPages || pageNum < 1) return;
+            if (!pdfDoc || isRendering) return;
+            if (pageNum > pdfDoc.numPages || pageNum < 1) return;
+            
+            isRendering = true;
             
             try {
                 const page = await pdfDoc.getPage(pageNum);
-                const viewport = page.getViewport({ scale: 1.5 });
+                const scale = 1.5;
+                const viewport = page.getViewport({ scale: scale });
+                
+                // Set canvas size
                 canvas.width = viewport.width;
                 canvas.height = viewport.height;
                 
+                // Clear canvas
                 const ctx = canvas.getContext('2d');
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Render page
                 await page.render({
                     canvasContext: ctx,
                     viewport: viewport
                 }).promise;
                 
                 currentPage = pageNum;
+                
+                // Update page number display
+                const pageNumberEl = document.getElementById('page-number');
+                if (pageNumberEl) {
+                    pageNumberEl.textContent = pageNum + ' / ' + pdfDoc.numPages;
+                }
+                
+                console.log('Rendered page:', pageNum, 'of', pdfDoc.numPages);
             } catch (error) {
                 console.error('Error rendering page:', error);
+            } finally {
+                isRendering = false;
             }
         };
         
+        // Mouse wheel scroll untuk navigate pages
         pdfViewer.addEventListener('wheel', (e) => {
+            if (!pdfDoc) return;
+            
             if (e.deltaY > 0 && currentPage < pdfDoc.numPages) {
                 e.preventDefault();
                 renderPage(currentPage + 1);
@@ -222,6 +264,26 @@
             }
         });
         
+        // Touch events untuk mobile
+        let touchStart = 0;
+        pdfViewer.addEventListener('touchstart', (e) => {
+            touchStart = e.touches[0].clientY;
+        });
+        
+        pdfViewer.addEventListener('touchend', (e) => {
+            if (!pdfDoc) return;
+            
+            const touchEnd = e.changedTouches[0].clientY;
+            const diff = touchStart - touchEnd;
+            
+            if (diff > 50 && currentPage < pdfDoc.numPages) {
+                renderPage(currentPage + 1);
+            } else if (diff < -50 && currentPage > 1) {
+                renderPage(currentPage - 1);
+            }
+        });
+        
+        // Load PDF
         loadAndRenderPDF();
     })();
     

@@ -18,7 +18,7 @@ class StoreSertifikatRequest extends FormRequest
             'jenis_sertifikat' => ['required', 'string', 'max:150'],
             'judul_sertifikat' => ['required', 'string', 'max:255'],
             'tanggal_diraih' => ['required', 'date', 'before_or_equal:today'],
-            'foto_sertifikat' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'foto_sertifikat' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:10240'],
         ];
     }
 
