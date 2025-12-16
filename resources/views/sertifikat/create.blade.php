@@ -680,11 +680,11 @@
                         return;
                     }
 
-                    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
                     if (!allowedTypes.includes(file.type)) {
                         Swal.fire({
                             title: 'Format Tidak Didukung',
-                            text: 'Gunakan format gambar JPG, PNG, atau GIF.',
+                            text: 'Gunakan format JPG, PNG, atau PDF.',
                             icon: 'error',
                             confirmButtonText: 'Mengerti',
                             customClass: { popup: 'rounded-2xl' }
