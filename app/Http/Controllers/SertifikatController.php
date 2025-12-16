@@ -21,11 +21,43 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class SertifikatController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $siswas = Siswa::withCount('sertifikats')
-            ->orderBy('nama')
-            ->paginate(10);
+        // Get filter parameters
+        $search = $request->get('search', '');
+        $jurusan = $request->get('jurusan', '');
+        $angkatan = $request->get('angkatan', '');
+        $kelas = $request->get('kelas', '');
+        $status = $request->get('status', '');
+
+        // Build query with filters
+        $query = Siswa::withCount('sertifikats')->orderBy('nama');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', '%' . $search . '%')
+                    ->orWhere('nis', 'like', '%' . $search . '%')
+                    ->orWhere('nisn', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($jurusan) {
+            $query->where('jurusan', $jurusan);
+        }
+
+        if ($angkatan) {
+            $query->where('angkatan', $angkatan);
+        }
+
+        if ($kelas) {
+            $query->where('kelas', $kelas);
+        }
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        $siswas = $query->paginate(10)->appends($request->query());
 
         // Sertifikat 12 bulan terakhir (untuk analitik sederhana)
         $sertifikatByMonth = Sertifikat::query()
@@ -64,6 +96,31 @@ class SertifikatController extends Controller
             ->whereYear('tanggal_diraih', now()->year)
             ->count();
 
+        // Get unique values for filter dropdowns
+        $jurusans = Siswa::whereNotNull('jurusan')
+            ->distinct()
+            ->pluck('jurusan')
+            ->sort()
+            ->values();
+
+        $angkatans = Siswa::whereNotNull('angkatan')
+            ->distinct()
+            ->pluck('angkatan')
+            ->sort()
+            ->values();
+
+        $kelases = Siswa::whereNotNull('kelas')
+            ->distinct()
+            ->pluck('kelas')
+            ->sort()
+            ->values();
+
+        $statuses = Siswa::whereNotNull('status')
+            ->distinct()
+            ->pluck('status')
+            ->sort()
+            ->values();
+
         return view('dashboard', [
             'siswas' => $siswas,
             'sertifikats' => $sertifikats,
@@ -75,6 +132,19 @@ class SertifikatController extends Controller
             'chartValues' => $sertifikatByMonth->values(),
             'jurusanLabels' => $sertifikatByJurusan->keys(),
             'jurusanValues' => $sertifikatByJurusan->values(),
+            'filters' => [
+                'search' => $search,
+                'jurusan' => $jurusan,
+                'angkatan' => $angkatan,
+                'kelas' => $kelas,
+                'status' => $status,
+            ],
+            'filterOptions' => [
+                'jurusans' => $jurusans,
+                'angkatans' => $angkatans,
+                'kelases' => $kelases,
+                'statuses' => $statuses,
+            ],
         ]);
     }
 
@@ -191,7 +261,7 @@ class SertifikatController extends Controller
     {
         $request->validate([
             'sertifikat_id' => 'required|exists:sertifikats,id',
-            'foto_sertifikat' => 'required|image|mimes:jpg,jpeg,png|max:2048'
+            'foto_sertifikat' => 'required|file|mimes:jpg,jpeg,png,pdf|max:10240'
         ]);
 
         $sertifikat = Sertifikat::findOrFail($request->sertifikat_id);
@@ -217,82 +287,158 @@ class SertifikatController extends Controller
     // 🔹 FITUR UPLOAD MASSAL FOTO BERDASARKAN NIS
     public function uploadMassal(Request $request)
     {
-        $request->validate([
-            'foto_sertifikat' => ['required', 'array'],
-            'foto_sertifikat.*' => ['file', 'image', 'mimes:jpeg,jpg,png,webp,JPEG,JPG', 'max:2048'],
-            'jenis_sertifikat' => ['required', 'string', 'max:100'],
-            'judul_sertifikat' => ['required', 'string', 'max:255'],
-            'tanggal_diraih' => ['required', 'date', 'before_or_equal:today'],
-        ], [
-            'foto_sertifikat.required' => 'Silakan pilih minimal satu file sertifikat.',
-            'foto_sertifikat.*.max' => 'Setiap file sertifikat maksimal 2MB. File yang melebihi batas tidak akan diunggah.',
-            'foto_sertifikat.*.mimes' => 'Format file harus JPG/JPEG/PNG.',
-        ]);
+        // Check for validation errors first - return JSON instead of redirect
+        try {
+            $request->validate([
+                'foto_sertifikat' => ['required', 'array'],
+                'foto_sertifikat.*' => ['file', 'mimes:jpeg,jpg,png,pdf', 'max:10240'], // 10MB per file
+                'jenis_sertifikat' => ['required', 'string', 'max:100'],
+                'judul_sertifikat' => ['required', 'string', 'max:255'],
+                'tanggal_diraih' => ['required', 'date', 'before_or_equal:today'],
+            ], [
+                'foto_sertifikat.required' => 'Silakan pilih minimal satu file sertifikat.',
+                'foto_sertifikat.*.max' => 'File melebihi batas 10MB per file.',
+                'foto_sertifikat.*.mimes' => 'Hanya format JPG/JPEG/PNG/PDF yang diterima.',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Return validation errors as JSON for fetch API
+            if ($request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+                return response()->json([
+                    'error' => implode(', ', $e->validator->errors()->all()),
+                    'success' => false,
+                    'skipped' => $e->validator->errors()->all()
+                ], 422);
+            }
+            throw $e;
+        }
 
         $jenis = $request->string('jenis_sertifikat')->toString();
         $judul = $request->string('judul_sertifikat')->toString();
         $tanggal = Carbon::parse($request->input('tanggal_diraih'))->toDateString();
 
         if (!$request->hasFile('foto_sertifikat') || !is_array($request->file('foto_sertifikat'))) {
-            return back()
-                ->withInput()
-                ->with('error', 'Tidak ada file yang terdeteksi. Pastikan kamu sudah memilih atau menyeret berkas ke area upload.');
+            return response()->json([
+                'error' => 'Tidak ada file yang terdeteksi. Pastikan Anda sudah memilih atau menyeret berkas ke area upload.',
+                'success' => false,
+                'skipped' => []
+            ], 400);
         }
 
         $files = $request->file('foto_sertifikat');
-        $ok = $skipped = [];
+        $ok = [];
+        $skipped = [];
 
-        try {
-            DB::transaction(function () use ($files, $jenis, $judul, $tanggal, &$ok, &$skipped) {
-                foreach ($files as $file) {
-                    $nis = trim(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
-                    if ($nis === '') {
-                        $skipped[] = "Nama file {$file->getClientOriginalName()} tidak valid";
-                        continue;
-                    }
-
-                    $siswa = Siswa::where('nis', $nis)->first();
-                    if (!$siswa) {
-                        $skipped[] = "{$nis} (siswa tidak ditemukan)";
-                        continue;
-                    }
-
-                    $ext = strtolower($file->getClientOriginalExtension());
-                    $filename = "{$nis}-" . now()->format('YmdHis') . "-" . Str::random(4) . ".{$ext}";
-                    $path = $file->storeAs('sertifikat_photos', $filename, 'public');
-
-                    Sertifikat::create([
-                        'nis' => $siswa->nis,
-                        'jenis_sertifikat' => $jenis,
-                        'judul_sertifikat' => $judul,
-                        'tanggal_diraih' => $tanggal,
-                        'foto_sertifikat' => $path
-                    ]);
-
-                    $ok[] = "{$nis} → {$filename}";
+        // Process files WITHOUT transaction - allow partial success
+        foreach ($files as $index => $file) {
+            try {
+                \Log::info("Processing file $index: " . $file->getClientOriginalName());
+                
+                // Extract NIS from filename (without extension)
+                $nis = trim(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
+                \Log::info("Extracted NIS: '$nis' from file: {$file->getClientOriginalName()}");
+                
+                if ($nis === '') {
+                    $skipped[] = "{$file->getClientOriginalName()} - Nama file tidak valid (NIS kosong)";
+                    \Log::warning("File {$file->getClientOriginalName()} - NIS tidak valid");
+                    continue;
                 }
-            });
-        } catch (\Throwable $e) {
-            return back()
-                ->withInput()
-                ->with('error', 'Gagal mengunggah sertifikat: ' . $e->getMessage());
+
+                // Find matching siswa
+                $siswa = Siswa::where('nis', $nis)->first();
+                if (!$siswa) {
+                    $skipped[] = "{$file->getClientOriginalName()} - NIS '$nis' tidak ditemukan di database";
+                    \Log::warning("Siswa with NIS '$nis' not found");
+                    continue;
+                }
+
+                \Log::info("Found siswa: {$siswa->id} - {$siswa->nama}");
+
+                // Validate file
+                $ext = strtolower($file->getClientOriginalExtension());
+                $mimeType = $file->getMimeType();
+                $fileSize = $file->getSize();
+                
+                \Log::info("File details - Extension: $ext, MIME: $mimeType, Size: " . ($fileSize / 1024 / 1024) . "MB");
+                
+                // Check if file is readable
+                if (!$file->isReadable()) {
+                    $skipped[] = "{$file->getClientOriginalName()} - File tidak dapat dibaca";
+                    \Log::error("File {$file->getClientOriginalName()} is not readable");
+                    continue;
+                }
+                
+                $filename = "{$nis}-" . now()->format('YmdHis') . "-" . Str::random(4) . ".{$ext}";
+                \Log::info("Generated filename: $filename");
+                
+                // Store file
+                try {
+                    $path = $file->storeAs('sertifikat_photos', $filename, 'public');
+                    if (!$path) {
+                        $skipped[] = "{$file->getClientOriginalName()} - Gagal menyimpan file";
+                        \Log::error("Failed to store file {$file->getClientOriginalName()}: storeAs returned null");
+                        continue;
+                    }
+                    \Log::info("File stored at: $path");
+                } catch (\Exception $storageError) {
+                    $skipped[] = "{$file->getClientOriginalName()} - Error storage: " . $storageError->getMessage();
+                    \Log::error("Storage error for {$file->getClientOriginalName()}: " . $storageError->getMessage());
+                    continue;
+                }
+
+                // Create sertifikat record
+                try {
+                    DB::transaction(function () use ($siswa, $jenis, $judul, $tanggal, $path) {
+                        Sertifikat::create([
+                            'nis' => $siswa->nis,
+                            'jenis_sertifikat' => $jenis,
+                            'judul_sertifikat' => $judul,
+                            'tanggal_diraih' => $tanggal,
+                            'foto_sertifikat' => $path
+                        ]);
+                    });
+
+                    $ok[] = "{$nis} - {$filename}";
+                    \Log::info("✓ Sertifikat berhasil dibuat untuk NIS: $nis");
+                } catch (\Throwable $dbError) {
+                    \Log::error("Database error for file {$file->getClientOriginalName()}: " . $dbError->getMessage(), [
+                        'nis' => $nis,
+                        'trace' => $dbError->getTraceAsString()
+                    ]);
+                    $skipped[] = "{$file->getClientOriginalName()} - Database error: " . $dbError->getMessage();
+                }
+                
+            } catch (\Throwable $fileError) {
+                \Log::error("Error processing file $index: " . $fileError->getMessage(), [
+                    'file' => $file->getClientOriginalName(),
+                    'trace' => $fileError->getTraceAsString()
+                ]);
+                $skipped[] = "{$file->getClientOriginalName()} - Error: " . $fileError->getMessage();
+            }
         }
 
+        // Build response messages
         if (count($ok) === 0) {
-            return back()
-                ->withInput()
-                ->with('error', 'Tidak ada sertifikat yang berhasil diunggah. Pastikan nama file sama persis dengan NIS siswa.')
-                ->with('skipped', $skipped);
+            \Log::error("Upload failed: No files succeeded", ['skipped' => $skipped]);
+            return response()->json([
+                'error' => 'Semua file gagal diunggah. Pastikan nama file sesuai dengan NIS siswa (contoh: 252610002.pdf).',
+                'skipped' => $skipped,
+                'success' => false
+            ], 400);
         }
 
-        $msg = "Upload massal selesai. Berhasil: " . count($ok);
-        if ($skipped) {
-            $msg .= ". Dilewati: " . count($skipped);
+        $msg = "✓ Upload berhasil! " . count($ok) . " file(s) diterima.";
+        if (count($skipped) > 0) {
+            $msg .= " ⚠ " . count($skipped) . " file(s) gagal.";
         }
+        
+        \Log::info("Upload complete. Success: " . count($ok) . ", Skipped: " . count($skipped));
 
-        return redirect()->route('dashboard')
-            ->with('success', $msg)
-            ->with('skipped', $skipped);
+        return response()->json([
+            'success' => $msg,
+            'skipped' => $skipped,
+            'ok_count' => count($ok),
+            'skipped_count' => count($skipped)
+        ], 200);
     }
     // ===== Tambahan dari controller lama (Edit, Update, Destroy) =====
     public function edit(Sertifikat $sertifikat): View

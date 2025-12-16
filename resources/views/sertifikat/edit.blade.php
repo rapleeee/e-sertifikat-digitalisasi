@@ -198,16 +198,31 @@
                         
                         {{-- Display Foto --}}
                         @if($sertifikat->foto_sertifikat && Storage::disk('public')->exists($sertifikat->foto_sertifikat))
+                            @php
+                                $isPdf = str_ends_with(strtolower($sertifikat->foto_sertifikat), '.pdf');
+                            @endphp
                             <div class="mb-4 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
                                 <div class="text-center">
                                     <p class="text-sm font-medium text-gray-600 mb-3 flex items-center justify-center">
-                                        <i class="fas fa-image mr-2"></i>Foto Saat Ini
+                                        <i class="fas fa-image mr-2"></i>File Saat Ini
                                     </p>
-                                    <div class="inline-block p-2 bg-white rounded-lg shadow-sm">
-                                        <img src="{{ Storage::url($sertifikat->foto_sertifikat) }}" 
-                                                alt="Current certificate photo" 
-                                                class="h-40 w-auto object-cover rounded-lg border border-gray-200 shadow-sm">
-                                    </div>
+                                    @if($isPdf)
+                                        <div class="inline-block p-4 bg-red-50 rounded-lg shadow-sm border border-red-200">
+                                            <svg class="w-16 h-16 text-red-500 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M7 18c-.5 0-.5.5-.5 1s0 1 .5 1h10c.5 0 .5-.5.5-1s0-1-.5-1H7zm0-3h10c.5 0 .5-.5.5-1s0-1-.5-1H7c-.5 0-.5.5-.5 1s0 1 .5 1zm0-5h10c.5 0 .5-.5.5-1s0-1-.5-1H7c-.5 0-.5.5-.5 1s0 1 .5 1zm11-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H6V4h12v12z"/>
+                                            </svg>
+                                            <p class="text-red-700 font-semibold text-sm mt-2">File PDF</p>
+                                            <a href="{{ Storage::url($sertifikat->foto_sertifikat) }}" target="_blank" class="text-red-600 hover:text-red-800 text-xs mt-1 inline-block underline">
+                                                Buka PDF
+                                            </a>
+                                        </div>
+                                    @else
+                                        <div class="inline-block p-2 bg-white rounded-lg shadow-sm">
+                                            <img src="{{ Storage::url($sertifikat->foto_sertifikat) }}" 
+                                                    alt="Current certificate photo" 
+                                                    class="h-40 w-auto object-cover rounded-lg border border-gray-200 shadow-sm">
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         @endif
@@ -217,7 +232,7 @@
                                 <input type="file" 
                                         id="foto_sertifikat" 
                                         name="foto_sertifikat" 
-                                        accept="image/*"
+                                        accept="image/jpeg,image/jpg,image/png,application/pdf"
                                         class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                                 
                                 <div class="space-y-3">
@@ -225,15 +240,15 @@
                                         <i class="fas fa-cloud-upload-alt text-orange-600 text-xl"></i>
                                     </div>
                                     <div>
-                                        <p class="text-gray-600 font-medium text-sm">Klik untuk unggah foto baru</p>
+                                        <p class="text-gray-600 font-medium text-sm">Klik untuk unggah file baru</p>
                                         <p class="text-gray-500 text-xs mt-1">atau drag & drop file ke sini</p>
                                     </div>
                                     <div class="flex items-center justify-center space-x-4 text-xs text-gray-500">
                                         <span class="flex items-center">
-                                            <i class="fas fa-file-image mr-1"></i>JPG, PNG
+                                            <i class="fas fa-file-image mr-1"></i>JPG, PNG, PDF
                                         </span>
                                         <span class="flex items-center">
-                                            <i class="fas fa-weight-hanging mr-1"></i>Max 2MB
+                                            <i class="fas fa-weight-hanging mr-1"></i>Max 10MB
                                         </span>
                                     </div>
                                 </div>

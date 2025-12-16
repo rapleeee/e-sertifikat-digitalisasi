@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
         if ($appEnv === 'testing') {
             $middleware->removeFromGroup('web', \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
         }
+        
+        // Add custom middleware for handling large upload errors
+        $middleware->append(\App\Http\Middleware\HandleLargeUploadErrors::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

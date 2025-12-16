@@ -28,6 +28,7 @@ class SiswaManagementTest extends TestCase
         $payload = [
             'nis' => 'NIS2024',
             'nama' => 'Rafi Ahmad',
+            'status' => 'aktif',
         ];
 
         $response = $this->post(route('siswa.store'), $payload);
@@ -50,6 +51,7 @@ class SiswaManagementTest extends TestCase
         $payload = [
             'nis' => 'NIS9999',
             'nama' => 'Nama Terbaru',
+            'status' => 'aktif',
         ];
 
         $response = $this->put(route('siswa.update', $siswa), $payload);

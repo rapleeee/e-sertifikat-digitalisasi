@@ -107,7 +107,7 @@ class SiswaController extends Controller
         Siswa::create($request->validated());
 
         return redirect()
-            ->route('siswa.index')
+            ->route('dashboard')
             ->with('success', 'Data siswa berhasil ditambahkan.');
     }
 
@@ -134,7 +134,7 @@ class SiswaController extends Controller
         $siswa->update($request->validated());
 
         return redirect()
-            ->route('siswa.index')
+            ->route('dashboard')
             ->with('success', 'Data siswa berhasil diperbarui.');
     }
 
@@ -152,7 +152,7 @@ class SiswaController extends Controller
         });
 
         return redirect()
-            ->route('siswa.index')
+            ->route('dashboard')
             ->with('success', "Data siswa {$nama} beserta sertifikatnya berhasil dihapus.");
     }
 

@@ -305,7 +305,7 @@
                                     <input
                                         type="file"
                                         name="foto_sertifikat"
-                                        accept="image/*"
+                                        accept="image/jpeg,image/jpg,image/png,application/pdf"
                                         x-ref="singleFileInput"
                                         class="absolute inset-0 opacity-0 cursor-pointer"
                                         @change="handleSingleFile($event)"
@@ -315,7 +315,7 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m0-2 2-2m-6-7h.01M5 7h.01M12 7h.01M19 7h.01M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                         </svg>
                                         <p class="text-sm font-semibold text-slate-600">Seret & lepas atau klik untuk pilih</p>
-                                        <p class="text-xs text-slate-400">Format JPG/PNG, maksimal 2MB</p>
+                                        <p class="text-xs text-slate-400">Format JPG/PNG/PDF, maksimal 10MB</p>
                                     </div>
                                 </div>
                                 <div class="mt-3" x-show="singlePreviewUrl" x-cloak>
@@ -580,14 +580,14 @@
                                             <input
                                                 type="file"
                                                 name="foto_sertifikat"
-                                                accept="image/*"
+                                                accept="image/jpeg,image/jpg,image/png,application/pdf"
                                                 class="absolute inset-0 opacity-0 cursor-pointer"
                                             >
                                             <div class="space-y-2">
                                                 <svg class="w-8 h-8 mx-auto text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m0-2 2-2m-6-7h.01M5 7h.01M12 7h.01M19 7h.01M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                                                 </svg>
-                                                <p class="text-xs text-slate-600">Klik untuk pilih file sertifikat (JPG/PNG, max 2MB)</p>
+                                                <p class="text-xs text-slate-600">Klik untuk pilih file sertifikat (JPG/PNG/PDF, max 10MB)</p>
                                             </div>
                                         </div>
                                         @error('foto_sertifikat')
