@@ -121,23 +121,38 @@
                                 </span>
                             </div>
                             @if($sertifikat->foto_sertifikat)
-                                <div class="aspect-w-4 aspect-h-3 bg-white relative overflow-hidden">
-                                    <img src="{{ Storage::url($sertifikat->foto_sertifikat) }}"
-                                         alt="Foto sertifikat"
-                                         class="w-full h-full object-cover">
-                                    <div class="absolute bottom-3 right-3 bg-white/95 rounded-xl shadow-md p-2 flex flex-col items-center gap-1">
-                                        <div id="qr-overlay" class="w-16 h-16"></div>
-                                        <p class="text-[10px] text-slate-500 text-center leading-tight">
-                                            QR verifikasi sertifikat
+                                @php
+                                    $isPdf = str_ends_with(strtolower($sertifikat->foto_sertifikat), '.pdf');
+                                @endphp
+                                
+                                @if($isPdf)
+                                    <div class="bg-white p-4">
+                                        <div id="pdf-viewer" class="border border-slate-200 rounded-lg bg-gray-100" style="height: 400px; overflow: auto;">
+                                            <canvas id="pdf-canvas"></canvas>
+                                        </div>
+                                        <p class="text-xs text-slate-500 text-center mt-2">
+                                            PDF Viewer - Gulir untuk melihat halaman lainnya
                                         </p>
                                     </div>
-                                </div>
+                                @else
+                                    <div class="aspect-w-4 aspect-h-3 bg-white relative overflow-hidden">
+                                        <img src="{{ Storage::url($sertifikat->foto_sertifikat) }}"
+                                             alt="Foto sertifikat"
+                                             class="w-full h-full object-cover">
+                                        <div class="absolute bottom-3 right-3 bg-white/95 rounded-xl shadow-md p-2 flex flex-col items-center gap-1">
+                                            <div id="qr-overlay" class="w-16 h-16"></div>
+                                            <p class="text-[10px] text-slate-500 text-center leading-tight">
+                                                QR verifikasi sertifikat
+                                            </p>
+                                        </div>
+                                    </div>
+                                @endif
                             @else
                                 <div class="p-6 text-center text-slate-500 text-sm">
                                     <svg class="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v4a1 1 0 001 1h3m10 0h3a1 1 0 001-1V7m-4 0V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2m12 0H5"/>
                                     </svg>
-                                    Belum ada foto yang diunggah. Anda dapat menambahkan foto melalui tombol edit.
+                                    Belum ada file yang diunggah. Anda dapat menambahkan file melalui tombol edit.
                                 </div>
                             @endif
                         </div>
@@ -149,7 +164,68 @@
 </x-app-layout>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
+    // PDF Viewer Setup
+    (function () {
+        const pdfViewer = document.getElementById('pdf-viewer');
+        const canvas = document.getElementById('pdf-canvas');
+        
+        if (!pdfViewer || !canvas) return;
+        
+        const pdfUrl = '{{ $sertifikat->foto_sertifikat ? Storage::url($sertifikat->foto_sertifikat) : "null" }}';
+        if (pdfUrl === 'null' || !pdfUrl.toLowerCase().endsWith('.pdf')) return;
+        
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        
+        let pdfDoc = null;
+        let currentPage = 1;
+        
+        const loadAndRenderPDF = async () => {
+            try {
+                pdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
+                renderPage(currentPage);
+            } catch (error) {
+                console.error('Error loading PDF:', error);
+                canvas.parentElement.innerHTML = '<div class="p-6 text-center text-red-500">Gagal memuat PDF</div>';
+            }
+        };
+        
+        const renderPage = async (pageNum) => {
+            if (!pdfDoc || pageNum > pdfDoc.numPages || pageNum < 1) return;
+            
+            try {
+                const page = await pdfDoc.getPage(pageNum);
+                const viewport = page.getViewport({ scale: 1.5 });
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                
+                const ctx = canvas.getContext('2d');
+                await page.render({
+                    canvasContext: ctx,
+                    viewport: viewport
+                }).promise;
+                
+                currentPage = pageNum;
+            } catch (error) {
+                console.error('Error rendering page:', error);
+            }
+        };
+        
+        pdfViewer.addEventListener('wheel', (e) => {
+            if (e.deltaY > 0 && currentPage < pdfDoc.numPages) {
+                e.preventDefault();
+                renderPage(currentPage + 1);
+            } else if (e.deltaY < 0 && currentPage > 1) {
+                e.preventDefault();
+                renderPage(currentPage - 1);
+            }
+        });
+        
+        loadAndRenderPDF();
+    })();
+    
+    // QR Code Generator
     (function () {
         var el = document.getElementById('qr-overlay');
         if (!el || typeof QRCode === 'undefined') {

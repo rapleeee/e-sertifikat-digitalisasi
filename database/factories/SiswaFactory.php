@@ -17,6 +17,7 @@ class SiswaFactory extends Factory
         return [
             'nis' => strtoupper($this->faker->unique()->bothify('NIS####')),
             'nama' => $this->faker->name(),
+            'status' => 'aktif',
         ];
     }
 }
