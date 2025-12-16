@@ -53,7 +53,7 @@
                     </a>
                 </li>
 
-                @if (auth()->user()->role == 'admin')
+                @if (in_array(auth()->user()->role, ['super_admin', 'admin', 'guru']))
                     <!-- Section: Data -->
                     <li class="pt-3">
                         <p x-show="open" class="px-3 mb-1 text-[11px] font-semibold text-gray-400 tracking-wide uppercase">
@@ -107,7 +107,9 @@
                             </li>
                         </ul>
                     </li>
+                @endif
 
+                @if (in_array(auth()->user()->role, ['super_admin', 'admin']))
                     <!-- Section: Laporan -->
                     <li class="pt-3">
                         <p x-show="open" class="px-3 mb-1 text-[11px] font-semibold text-gray-400 tracking-wide uppercase">

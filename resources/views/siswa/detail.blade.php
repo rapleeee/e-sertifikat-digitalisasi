@@ -76,12 +76,26 @@
                 @if($siswa->sertifikats->count() > 0)
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($siswa->sertifikats as $sertifikat)
+                    @php
+                        $isPdf = str_ends_with(strtolower($sertifikat->foto_sertifikat), '.pdf');
+                    @endphp
                     <div class="group relative bg-gray-50 rounded-xl overflow-hidden border border-gray-200 hover:border-orange-400 transition-all duration-200 hover:shadow-md">
-                        <div class="aspect-w-16 aspect-h-9">
-                            <img src="{{ Storage::url($sertifikat->foto_sertifikat) }}"
-                                alt="Sertifikat"
-                                class="w-full h-full object-cover">
-                        </div>
+                        @if($isPdf)
+                            <div class="aspect-w-16 aspect-h-9 bg-gray-200 flex items-center justify-center h-40">
+                                <div class="text-center">
+                                    <svg class="w-12 h-12 mx-auto text-gray-400 mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm0 2h12v10H4V5z"></path>
+                                    </svg>
+                                    <p class="text-xs text-gray-600 font-medium">File PDF</p>
+                                </div>
+                            </div>
+                        @else
+                            <div class="aspect-w-16 aspect-h-9">
+                                <img src="{{ Storage::url($sertifikat->foto_sertifikat) }}"
+                                    alt="Sertifikat"
+                                    class="w-full h-full object-cover">
+                            </div>
+                        @endif
                         <div class="p-4">
                             <span class="inline-block px-3 py-1 rounded-full text-xs font-medium {{ 
                                         $sertifikat->jenis_sertifikat === 'Kompetensi' ? 'bg-green-100 text-green-800' : 
@@ -96,7 +110,7 @@
                         </div>
                         <!-- Hover -->
                         <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center space-x-2">
-                            <!-- Lihat -->
+                            <!-- Lihat / Preview -->
                             <a href="{{ Storage::url($sertifikat->foto_sertifikat) }}" target="_blank"
                                 class="p-2 bg-white rounded-full hover:bg-blue-50 transition-colors duration-200">
                                 <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

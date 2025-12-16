@@ -19,6 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
         
         // Add custom middleware for handling large upload errors
         $middleware->append(\App\Http\Middleware\HandleLargeUploadErrors::class);
+
+        // Register custom middleware aliases
+        $middleware->alias([
+            'check-manage-access' => \App\Http\Middleware\CheckManageAccess::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

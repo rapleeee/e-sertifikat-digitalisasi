@@ -495,9 +495,9 @@
                 const dateText = cert.tanggal_diraih
                     ? new Date(cert.tanggal_diraih).toLocaleDateString('id-ID')
                     : '-';
+                const isPdf = cert.foto_sertifikat && cert.foto_sertifikat.toLowerCase().endsWith('.pdf');
                 const card = document.createElement('div');
-                card.className = 'rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer';
-                card.onclick = () => showCertificateDetail(cert.id);
+                card.className = 'rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow';
                 
                 card.innerHTML = `
                     <div class="p-6">
@@ -513,9 +513,37 @@
                         <p class="text-xs text-slate-500 mb-1">${cert.nama_siswa}</p>
                         <p class="text-[11px] text-slate-400 mb-4">NIS: ${cert.nis}</p>
                         
-                        <div class="mt-2 flex items-center text-xs font-medium text-orange-600">
-                            <i class="fas fa-eye mr-2"></i>
-                            <span>Lihat detail sertifikat</span>
+                        <div class="flex items-center gap-2 mt-3">
+                            ${cert.foto_sertifikat ? `
+                                <button onclick="viewSertifikat(${cert.id})" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+                                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                    <span>Lihat</span>
+                                </button>
+                                ${isPdf ? `
+                                    <button onclick="downloadSertifikat('{{ asset('storage') }}/${cert.foto_sertifikat}')" class="px-3 py-2 text-xs font-medium text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition" title="Buka di tab baru">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                        </svg>
+                                    </button>
+                                ` : `
+                                    <button onclick="downloadSertifikat('{{ asset('storage') }}/${cert.foto_sertifikat}', true)" class="px-3 py-2 text-xs font-medium text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition" title="Download ke komputer">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                        </svg>
+                                    </button>
+                                `}
+                            ` : `
+                                <button onclick="showDetailNoPhoto(${cert.id})" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
+                                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    </svg>
+                                    <span>Lihat detail</span>
+                                </button>
+                            `}
                         </div>
                     </div>
                 `;
@@ -660,13 +688,12 @@
                             <h4 class="text-lg font-semibold text-slate-900 mb-3">${cert.judul_sertifikat}</h4>
                             ${photoSection}
                             <div class="mt-4 flex flex-wrap justify-center gap-3">
-                                <a
-                                    href="{{ url('/sertifikat') }}/${cert.id}/kartu"
-                                    target="_blank"
+                                <button
+                                    onclick="openCardInModal('{{ url('/sertifikat') }}/${cert.id}/kartu')"
                                     class="inline-flex items-center px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-orange-500 text-white hover:bg-orange-600"
                                 >
                                     Kartu & QR / Cetak
-                                </a>
+                                </button>
                                 ${hasPhoto ? `
                                     <a
                                         href="{{ asset('storage') }}/${cert.foto_sertifikat}"
@@ -750,6 +777,41 @@
                     closeModalWithAnimation();
                 }
             });
+
+            window.openCardInModal = function(url) {
+                const iframe = document.createElement('iframe');
+                iframe.src = url;
+                iframe.style.width = '100%';
+                iframe.style.height = '600px';
+                iframe.style.border = 'none';
+                iframe.style.borderRadius = '0.75rem';
+                
+                modalContent.innerHTML = '';
+                modalContent.appendChild(iframe);
+                
+                const modal = certificateModal;
+                modal.classList.remove('opacity-0', 'invisible');
+                modal.classList.add('opacity-100', 'visible');
+            };
+
+            window.downloadSertifikat = function(url, filename = false) {
+                const link = document.createElement('a');
+                link.href = url;
+                if (filename) {
+                    link.download = 'sertifikat.' + url.split('.').pop();
+                } else {
+                    link.target = '_blank';
+                }
+                link.click();
+            };
+
+            window.viewSertifikat = function(certId) {
+                showCertificateDetail(certId);
+            };
+
+            window.showDetailNoPhoto = function(certId) {
+                showCertificateDetail(certId);
+            };
         });
 
         function createParticles() {
