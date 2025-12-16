@@ -371,7 +371,8 @@
           }
           
           const file = this.files[fileIndex];
-          console.log(`Uploading file ${fileIndex + 1}/${this.files.length}: ${file.name}`);
+          const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+          console.log(`Uploading file ${fileIndex + 1}/${this.files.length}: ${file.name} (${fileSizeMB}MB)`);
           
           // Create FormData with single file
           const formData = new FormData();
@@ -381,15 +382,23 @@
           formData.append('tanggal_diraih', this.tanggal);
           formData.append('_token', document.querySelector('input[name="_token"]').value);
           
+          // Create abort controller untuk timeout handling
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => {
+            controller.abort();
+          }, 120000); // 2 minutes timeout per file (120 seconds)
+          
           // Upload this file
           fetch('{{ route('sertifikat.upload.massal') }}', {
             method: 'POST',
             body: formData,
             headers: {
               'X-Requested-With': 'XMLHttpRequest'
-            }
+            },
+            signal: controller.signal
           })
           .then(response => {
+            clearTimeout(timeoutId);
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
               return response.json().then(data => ({
@@ -417,6 +426,8 @@
                 errorMsg = 'File terlalu besar! Maksimal 10MB per file.';
               } else if (result.data.includes('414')) {
                 errorMsg = 'Request terlalu panjang. Coba lagi.';
+              } else if (result.data.includes('502') || result.data.includes('503') || result.data.includes('504')) {
+                errorMsg = 'Server sedang sibuk atau offline. Coba lagi dalam beberapa menit.';
               }
               
               Swal.fire({
@@ -447,15 +458,25 @@
             this.uploadFileSequentially(fileIndex + 1);
           })
           .catch(error => {
+            clearTimeout(timeoutId);
             console.error('Fetch error on file', fileIndex + 1, ':', error);
-            let errorMsg = 'Error jaringan saat upload file ' + (fileIndex + 1);
             
-            if (error.message.includes('Failed to fetch')) {
-              errorMsg = 'Koneksi gagal. Pastikan internet stabil.';
+            let errorMsg = 'Error saat upload file ' + (fileIndex + 1);
+            let isTimeout = false;
+            
+            // Detect timeout
+            if (error.name === 'AbortError') {
+              errorMsg = 'Upload timeout untuk file ' + (fileIndex + 1) + '. File terlalu besar atau koneksi lambat.';
+              isTimeout = true;
+            } else if (error.message.includes('Failed to fetch')) {
+              errorMsg = 'Gagal terhubung ke server. Cek internet Anda:';
+              errorMsg += '\n- Pastikan internet stabil\n- Coba refresh halaman\n- Coba kembali dalam beberapa menit';
+            } else if (error.message.includes('NetworkError')) {
+              errorMsg = 'Error jaringan. Koneksi terputus saat upload.';
             }
             
             Swal.fire({
-              title: 'Error Upload',
+              title: 'Error Upload' + (isTimeout ? ' (Timeout)' : ''),
               text: errorMsg,
               icon: 'error',
               confirmButtonText: 'OK',

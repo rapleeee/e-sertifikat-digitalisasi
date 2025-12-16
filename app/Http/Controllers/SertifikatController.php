@@ -21,6 +21,15 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class SertifikatController extends Controller
 {
+    public function __construct()
+    {
+        // Increase execution time untuk upload files
+        set_time_limit(300); // 5 minutes per file
+        
+        // Increase memory limit untuk processing files
+        ini_set('memory_limit', '256M');
+    }
+
     public function index(Request $request): View
     {
         // Get filter parameters
@@ -287,6 +296,9 @@ class SertifikatController extends Controller
     // 🔹 FITUR UPLOAD MASSAL FOTO BERDASARKAN NIS
     public function uploadMassal(Request $request)
     {
+        $requestId = Str::uuid(); // For tracking in logs
+        \Log::info("=== UPLOAD MASSAL START ===", ['requestId' => $requestId, 'timestamp' => now()]);
+        
         // Check for validation errors first - return JSON instead of redirect
         try {
             $request->validate([
@@ -301,12 +313,15 @@ class SertifikatController extends Controller
                 'foto_sertifikat.*.mimes' => 'Hanya format JPG/JPEG/PNG/PDF yang diterima.',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::warning("Validation failed", ['requestId' => $requestId, 'errors' => $e->validator->errors()->all()]);
+            
             // Return validation errors as JSON for fetch API
             if ($request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
                 return response()->json([
                     'error' => implode(', ', $e->validator->errors()->all()),
                     'success' => false,
-                    'skipped' => $e->validator->errors()->all()
+                    'skipped' => $e->validator->errors()->all(),
+                    'requestId' => $requestId
                 ], 422);
             }
             throw $e;
@@ -418,11 +433,12 @@ class SertifikatController extends Controller
 
         // Build response messages
         if (count($ok) === 0) {
-            \Log::error("Upload failed: No files succeeded", ['skipped' => $skipped]);
+            \Log::error("Upload failed: No files succeeded", ['requestId' => $requestId, 'skipped' => $skipped]);
             return response()->json([
                 'error' => 'Semua file gagal diunggah. Pastikan nama file sesuai dengan NIS siswa (contoh: 252610002.pdf).',
                 'skipped' => $skipped,
-                'success' => false
+                'success' => false,
+                'requestId' => $requestId
             ], 400);
         }
 
@@ -431,13 +447,21 @@ class SertifikatController extends Controller
             $msg .= " ⚠ " . count($skipped) . " file(s) gagal.";
         }
         
-        \Log::info("Upload complete. Success: " . count($ok) . ", Skipped: " . count($skipped));
+        \Log::info("=== UPLOAD MASSAL COMPLETE ===", [
+            'requestId' => $requestId,
+            'success_count' => count($ok),
+            'skipped_count' => count($skipped),
+            'memory_usage_mb' => round(memory_get_usage(true) / 1024 / 1024, 2),
+            'peak_memory_mb' => round(memory_get_peak_usage(true) / 1024 / 1024, 2),
+            'execution_time_started' => microtime(true)
+        ]);
 
         return response()->json([
             'success' => $msg,
             'skipped' => $skipped,
             'ok_count' => count($ok),
-            'skipped_count' => count($skipped)
+            'skipped_count' => count($skipped),
+            'requestId' => $requestId
         ], 200);
     }
     // ===== Tambahan dari controller lama (Edit, Update, Destroy) =====
