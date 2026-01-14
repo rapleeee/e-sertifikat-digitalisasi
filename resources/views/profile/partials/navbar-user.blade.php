@@ -18,7 +18,13 @@
                     <span class="relative z-10">Home</span>
                 </a>
                 <a href="{{ route('pencarian.sertifikat') }}" class="px-4 py-2 text-sm lg:text-base font-medium text-slate-700 hover:text-orange-600 transition-colors">
-                    <span class="relative z-10">Cari Sertifikat</span>
+                    <span class="relative z-10">Cek Sertifikat</span>
+                </a>
+                <a href="{{ route('pencarian.sertifikat') }}" class="px-4 py-2 text-sm lg:text-base font-medium text-slate-700 hover:text-orange-600 transition-colors">
+                    <span class="relative z-10">Cek Kelulusan</span>
+                </a>
+                <a href="{{ route('pencarian.sertifikat') }}" class="px-4 py-2 text-sm lg:text-base font-medium text-slate-700 hover:text-orange-600 transition-colors">
+                    <span class="relative z-10">Cek Eligible PTN</span>
                 </a>
                 <a href="{{ route('laporan.public.form') }}" class="px-4 py-2 text-sm lg:text-base font-medium text-slate-700 hover:text-orange-600 transition-colors">
                     <span class="relative z-10">Laporan</span>

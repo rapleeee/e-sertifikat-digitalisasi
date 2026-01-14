@@ -20,6 +20,8 @@ class Siswa extends Model
         'jurusan',
         'angkatan',
         'status',
+        'eligibilitas',
+        'catatan_eligibilitas',
     ];
 
     public function sertifikats()

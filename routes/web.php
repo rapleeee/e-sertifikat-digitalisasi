@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EligibilitasController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
@@ -16,6 +17,14 @@ Route::view('/tim-pengembang', 'tim')->name('tim.profil');
 Route::get('/pencarian-sertifikat', function () {
     return view('sertiuser.index');
 })->name('pencarian.sertifikat');
+
+Route::get('/pencarian-eligible', function () {
+    return view('elegibleuser.index');
+})->name('pencarian.eligible');
+
+Route::get('/pencarian-eligible/test', function () {
+    return view('elegibleuser.test');
+})->name('pencarian.eligible.test');
 
 Route::get('/laporan', [LaporanController::class, 'publicForm'])->name('laporan.public.form');
 Route::post('/laporan', [LaporanController::class, 'publicStore'])->name('laporan.public.store');
@@ -57,6 +66,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('{siswa}', [SiswaController::class, 'destroy'])->name('destroy');
         });
 
+        // Eligibilitas routes
+        Route::prefix('eligibilitas')->name('eligibilitas.')->group(function () {
+            Route::get('', [EligibilitasController::class, 'index'])->name('index');
+            Route::get('update', [EligibilitasController::class, 'bulkIndex'])->name('bulk-index');
+            Route::put('update', [EligibilitasController::class, 'bulkUpdate'])->name('bulk-update');
+            Route::post('individual-update', [EligibilitasController::class, 'individualUpdate'])->name('individual-update');
+            Route::get('{siswa}/edit', [EligibilitasController::class, 'edit'])->name('edit');
+            Route::put('{siswa}', [EligibilitasController::class, 'update'])->name('update');
+        });
+
         Route::get('/sertifikat/import', [SiswaController::class, 'importForm'])->name('sertifikat.import.form');
         Route::post('/sertifikat/import', [SiswaController::class, 'importExcel'])->name('sertifikat.import.excel');
         Route::get('/sertifikat/preview', [SiswaController::class, 'previewImport'])->name('sertifikat.preview');
@@ -92,6 +111,11 @@ Route::post(
     '/api/sertifikat/search',
     [SertifikatController::class, 'searchApi']
 )->name('sertifikat.search.api')->middleware('throttle:30,1');
+
+Route::get(
+    '/api/pencarian-eligible',
+    [EligibilitasController::class, 'publicSearch']
+)->name('eligible.search.api')->middleware('throttle:30,1');
 
 Route::get(
     '/api/sertifikat/{sertifikat}',
