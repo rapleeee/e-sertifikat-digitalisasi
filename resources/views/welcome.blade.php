@@ -30,27 +30,25 @@
                     untuk melihat informasi yang kamu cari dan diterbitkan langsung oleh sekolah secara resmi.
                 </p>
 
-                <div class="flex flex-wrap items-center gap-3 pt-2">
-                    <div class="flex flex-col sm:flex-row flex-wrap items-center gap-3 pt-2">
-                        <a href="{{ route('pencarian.sertifikat') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm border border-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+                <div class="flex flex-wrap gap-3 pt-6">
+                        <a href="{{ route('pencarian.sertifikat') }}" class="inline-flex items-center justify-center gap-2 rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-orange-600 transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10A7 7 0 103 10a7 7 0 0014 0z" />
                             </svg>
                             Cek Sertifikat
                         </a>
-                        <a href="{{ route('pencarian.sertifikat') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-transparent px-5 py-2.5 text-sm font-semibold text-orange-500 shadow-sm hover:bg-orange-200 border border-orange-500">
+                        <a href="{{ route('pencarian.sertifikat') }}" class="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-orange-600 shadow-sm border border-orange-200 hover:bg-orange-50 transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10A7 7 0 103 10a7 7 0 0014 0z" />
                             </svg>
                             Cek Kelulusan
                         </a>
-                        <a href="{{ route('pencarian.eligible') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg bg-transparent px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-200 border border-slate-300">
+                        <a href="{{ route('pencarian.eligible') }}" class="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             Cek Eligible PTN
                         </a>
-                    </div>
                 </div>
                 
 
