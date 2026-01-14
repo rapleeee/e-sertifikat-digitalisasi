@@ -215,10 +215,10 @@
                             </p>
                             
                             <div class="flex gap-2">
-                                <a href="https://s.id/Hasil-TKA" target="_blank" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 rounded-md transition text-sm text-center">
+                                <a href="https://s.id/Hasil-TKA" target="_blank" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition text-sm">
                                     Lihat Hasil TKA
                                 </a>
-                                <button onclick="window.closeModal()" class="flex-1 bg-slate-600 hover:bg-slate-700 text-white font-medium py-2 rounded-md transition text-sm">
+                                <button onclick="window.closeModal()" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition text-sm">
                                     Tutup
                                 </button>
                             </div>
@@ -262,10 +262,10 @@
                             </p>
                             
                             <div class="flex gap-2">
-                                <a href="https://s.id/Hasil-TKA" target="_blank" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-md transition text-sm text-center">
+                                <a href="https://s.id/Hasil-TKA" target="_blank" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition text-sm">
                                     Lihat Hasil TKA
                                 </a>
-                                <button onclick="window.closeModal()" class="flex-1 bg-slate-700 hover:bg-slate-800 text-white font-medium py-2 rounded-md transition text-sm">
+                                <button onclick="window.closeModal()" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-lg transition text-sm">
                                     Mengerti
                                 </button>
                             </div>
