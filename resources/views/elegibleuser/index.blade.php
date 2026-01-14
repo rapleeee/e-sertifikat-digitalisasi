@@ -218,7 +218,7 @@
                                 <a href="https://s.id/Hasil-TKA" target="_blank" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition text-sm">
                                     Lihat Hasil TKA
                                 </a>
-                                <button onclick="window.closeModal()" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition text-sm">
+                                <button onclick="window.closeModal()" class="flex-1 inline-flex items-center justify-center px-4 py-2 text-white font-semibold rounded-lg transition text-sm" style="background-color: #CDB885;" onmouseover="this.style.backgroundColor='#b8a86f'" onmouseout="this.style.backgroundColor='#CDB885'">
                                     Tutup
                                 </button>
                             </div>
