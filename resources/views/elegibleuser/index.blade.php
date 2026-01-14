@@ -215,7 +215,7 @@
                             </p>
                             
                             <div class="flex gap-2">
-                                <a href="https://s.id/Hasil-TKA" target="_blank" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition text-sm">
+                                <a href="https://s.id/Hasil-TKA" target="_blank" class="flex-1 inline-flex items-center justify-center px-4 py-2 text-white font-semibold rounded-lg transition text-sm" style="background-color: #F97316;" onmouseover="this.style.backgroundColor='#EA580C'" onmouseout="this.style.backgroundColor='#F97316'">
                                     Lihat Hasil TKA
                                 </a>
                                 <button onclick="window.closeModal()" class="flex-1 inline-flex items-center justify-center px-4 py-2 text-white font-semibold rounded-lg transition text-sm" style="background-color: #CDB885;" onmouseover="this.style.backgroundColor='#b8a86f'" onmouseout="this.style.backgroundColor='#CDB885'">
@@ -262,10 +262,10 @@
                             </p>
                             
                             <div class="flex gap-2">
-                                <a href="https://s.id/Hasil-TKA" target="_blank" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition text-sm">
+                                <a href="https://s.id/Hasil-TKA" target="_blank" class="flex-1 inline-flex items-center justify-center px-4 py-2 text-white font-semibold rounded-lg transition text-sm" style="background-color: #F97316;" onmouseover="this.style.backgroundColor='#EA580C'" onmouseout="this.style.backgroundColor='#F97316'">
                                     Lihat Hasil TKA
                                 </a>
-                                <button onclick="window.closeModal()" class="flex-1 inline-flex items-center justify-center px-4 py-2 bg-slate-700 hover:bg-slate-800 text-white font-semibold rounded-lg transition text-sm">
+                                <button onclick="window.closeModal()" class="flex-1 inline-flex items-center justify-center px-4 py-2 text-white font-semibold rounded-lg transition text-sm" style="background-color: #64748B;" onmouseover="this.style.backgroundColor='#475569'" onmouseout="this.style.backgroundColor='#64748B'">
                                     Mengerti
                                 </button>
                             </div>
