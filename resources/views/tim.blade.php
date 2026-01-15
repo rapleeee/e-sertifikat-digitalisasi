@@ -30,10 +30,10 @@
             <!-- Project Manager -->
             <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm flex flex-col items-center text-center gap-3">
                 <div class="w-20 h-20 rounded-full bg-orange-50 border border-orange-200 flex items-center justify-center text-2xl font-semibold text-orange-600">
-                    PM
+                    RA
                 </div>
                 <div class="space-y-1">
-                    <p class="text-sm font-semibold text-slate-900">Nama Project Manager</p>
+                    <p class="text-sm font-semibold text-slate-900">Raenal Apriansyah, S.Kom., Gr</p>
                     <p class="text-xs text-slate-500">Project Manager</p>
                 </div>
                 <p class="text-xs text-slate-500">
@@ -54,11 +54,10 @@
 
             <!-- Lead Developer -->
             <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm flex flex-col items-center text-center gap-3">
-                <div class="w-20 h-20 rounded-full bg-orange-50 border border-orange-200 flex items-center justify-center text-2xl font-semibold text-orange-600">
-                    LD
-                </div>
+                <img src="{{ asset('images/tim-developer/rafli.jpg') }}" alt="Rafli Maulana" class="w-20 h-20 rounded-full object-cover border border-orange-200">
+
                 <div class="space-y-1">
-                    <p class="text-sm font-semibold text-slate-900">Nama Lead Developer</p>
+                    <p class="text-sm font-semibold text-slate-900">Rafli Maulana</p>
                     <p class="text-xs text-slate-500">Lead Developer</p>
                 </div>
                 <p class="text-xs text-slate-500">
@@ -80,10 +79,10 @@
             <!-- Developer 1 -->
             <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm flex flex-col items-center text-center gap-3">
                 <div class="w-20 h-20 rounded-full bg-orange-50 border border-orange-200 flex items-center justify-center text-2xl font-semibold text-orange-600">
-                    D1
+                    NA
                 </div>
                 <div class="space-y-1">
-                    <p class="text-sm font-semibold text-slate-900">Nama Developer 1</p>
+                    <p class="text-sm font-semibold text-slate-900">Nashat Akram</p>
                     <p class="text-xs text-slate-500">Developer</p>
                 </div>
                 <p class="text-xs text-slate-500">
@@ -104,11 +103,11 @@
 
             <!-- Developer 2 -->
             <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm flex flex-col items-center text-center gap-3">
-                <div class="w-20 h-20 rounded-full bg-orange-50 border border-orange-200 flex items-center justify-center text-2xl font-semibold text-orange-600">
-                    D2
+                <div class="w-20 h-20 rounded-full bg-orange-50 border border-orange-200 flex items-center justify-center text-xl font-semibold text-orange-600">
+                    NAF
                 </div>
                 <div class="space-y-1">
-                    <p class="text-sm font-semibold text-slate-900">Nama Developer 2</p>
+                    <p class="text-sm font-semibold text-slate-900">Nugraha Algeio Firizki S</p>
                     <p class="text-xs text-slate-500">Developer</p>
                 </div>
                 <p class="text-xs text-slate-500">
@@ -130,10 +129,10 @@
             <!-- Developer 3 -->
             <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm flex flex-col items-center text-center gap-3">
                 <div class="w-20 h-20 rounded-full bg-orange-50 border border-orange-200 flex items-center justify-center text-2xl font-semibold text-orange-600">
-                    D3
+                    NB
                 </div>
                 <div class="space-y-1">
-                    <p class="text-sm font-semibold text-slate-900">Nama Developer 3</p>
+                    <p class="text-sm font-semibold text-slate-900">Naufal Bagaskara Budihutama</p>
                     <p class="text-xs text-slate-500">Developer</p>
                 </div>
                 <p class="text-xs text-slate-500">
@@ -152,11 +151,6 @@
                 </div>
             </article>
         </div>
-
-        <p class="pt-4 text-xs text-slate-500">
-            Catatan: semua nama, foto, dan tautan di atas masih bersifat placeholder. Silakan diganti dengan data asli
-            sesuai struktur organisasi dan portofolio masing-masing anggota tim.
-        </p>
     </section>
 </main>
 
