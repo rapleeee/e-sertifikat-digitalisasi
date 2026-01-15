@@ -117,7 +117,7 @@
     </section>
 
     <!-- Info Cards -->
-    <section class="mt-20">
+    <section class="mt-32">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-10">
             <div class="text-center space-y-3 mb-12">
                 <h2 class="text-2xl sm:text-3xl font-semibold text-slate-900">Bagaimana Cara Menggunakan?</h2>

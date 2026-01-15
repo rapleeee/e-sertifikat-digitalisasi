@@ -21,9 +21,9 @@
                     <div>
                         <!-- Canvas element where the animation will be rendered -->
 
-                        <h1 class="text-3xl sm:text-4xl font-semibold text-slate-900">Cek Status Eligible PTN</h1>
-                        <p class="mt-2 text-sm sm:text-base text-slate-600">
-                            Masukkan NIS siswa untuk melihat status kelulusan dan kelayakan untuk masuk PTN yang telah ditetapkan oleh sekolah.
+                        <h1 class="text-3xl sm:text-4xl font-semibold text-slate-900">Cek Status Eligible PTN dan Hasil TKA</h1>
+                        <p class="mt-8 text-sm sm:text-base text-slate-600">
+                            Masukkan NIS siswa untuk melihat status kelulusan kelayakan untuk masuk PTN yang telah ditetapkan oleh sekolah dan untuk melihat hasil TKA.
                         </p>
                     </div>
 
