@@ -86,6 +86,41 @@
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
             <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
                 <h2 class="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                    <ion-icon name="cloud-upload-outline" class="w-5 h-5 text-gray-400"></ion-icon>
+                    Restore Database dari File .sql
+                </h2>
+            </div>
+            <div class="px-5 py-5">
+                <form action="{{ route('backup.restore') }}" method="POST" enctype="multipart/form-data" data-swal-confirm="Apakah Anda yakin ingin me-restore database dari file ini? Data saat ini bisa tertimpa.">
+                    @csrf
+                    <div class="flex flex-col sm:flex-row items-start sm:items-end gap-3">
+                        <div class="flex-1 w-full">
+                            <label for="sql_file" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Pilih file .sql</label>
+                            <input type="file" name="sql_file" id="sql_file" accept=".sql" required
+                                   class="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 transition-colors">
+                            @error('sql_file')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <button type="submit" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors whitespace-nowrap">
+                            <ion-icon name="push-outline" class="w-4 h-4"></ion-icon>
+                            Restore Database
+                        </button>
+                    </div>
+                </form>
+                <div class="mt-3 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                    <div class="flex gap-2">
+                        <ion-icon name="warning-outline" class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0"></ion-icon>
+                        <p class="text-xs text-amber-700">Perhatian: Restore akan menimpa data di tabel yang sama. Pastikan file .sql yang diupload sudah benar. Disarankan buat backup terlebih dahulu sebelum melakukan restore.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Backup List --}}
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+            <div class="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
                     <ion-icon name="server-outline" class="w-5 h-5 text-gray-400"></ion-icon>
                     Daftar Backup
                 </h2>

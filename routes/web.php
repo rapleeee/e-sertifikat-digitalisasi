@@ -96,6 +96,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Backup Database
         Route::get('/backup', [BackupController::class, 'index'])->name('backup.index');
         Route::post('/backup', [BackupController::class, 'create'])->name('backup.create');
+        Route::post('/backup/restore', [BackupController::class, 'restore'])->name('backup.restore');
         Route::get('/backup/{filename}/download', [BackupController::class, 'download'])->name('backup.download');
         Route::delete('/backup/{filename}', [BackupController::class, 'destroy'])->name('backup.destroy');
     });

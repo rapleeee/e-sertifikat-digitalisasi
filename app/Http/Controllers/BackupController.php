@@ -97,4 +97,64 @@ class BackupController extends Controller
 
         return back()->with('success', 'Backup "' . $filename . '" berhasil dihapus.');
     }
+
+    public function restore(Request $request)
+    {
+        $request->validate([
+            'sql_file' => ['required', 'file', 'max:51200'], // max 50MB
+        ]);
+
+        $file = $request->file('sql_file');
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        if ($extension !== 'sql') {
+            return back()->with('error', 'File harus berformat .sql');
+        }
+
+        // Read first few bytes to basic-validate it's SQL
+        $handle = fopen($file->getRealPath(), 'r');
+        $header = fread($handle, 4096);
+        fclose($handle);
+
+        // Block dangerous non-SQL files disguised as .sql
+        if (preg_match('/<\?php|<script|<%/i', $header)) {
+            return back()->with('error', 'File tidak valid. File mengandung kode yang tidak diizinkan.');
+        }
+
+        $database = config('database.connections.mysql.database');
+        $username = config('database.connections.mysql.username');
+        $password = config('database.connections.mysql.password');
+        $host = config('database.connections.mysql.host');
+        $port = config('database.connections.mysql.port', 3306);
+
+        $tempPath = $file->getRealPath();
+
+        $passwordArg = !empty($password) ? ' --password=' . escapeshellarg($password) : '';
+        $errFile = storage_path('app/private/backups/restore_error.log');
+
+        $command = sprintf(
+            'mysql --host=%s --port=%s --user=%s%s %s < %s 2> %s',
+            escapeshellarg($host),
+            escapeshellarg((string) $port),
+            escapeshellarg($username),
+            $passwordArg,
+            escapeshellarg($database),
+            escapeshellarg($tempPath),
+            escapeshellarg($errFile)
+        );
+
+        $exitCode = 0;
+        exec($command, $output, $exitCode);
+
+        $errorMsg = file_exists($errFile) ? trim(file_get_contents($errFile)) : '';
+        if (file_exists($errFile)) {
+            unlink($errFile);
+        }
+
+        if ($exitCode !== 0) {
+            return back()->with('error', 'Restore gagal (exit code: ' . $exitCode . '): ' . $errorMsg);
+        }
+
+        return back()->with('success', 'Database berhasil di-restore dari file: ' . $file->getClientOriginalName());
+    }
 }
