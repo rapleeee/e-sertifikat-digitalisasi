@@ -9,9 +9,18 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web/+esm"></script>
-    
+    <style>
+        .brutal-shadow { box-shadow: 5px 5px 0px 0px #000; }
+        .brutal-shadow:hover { box-shadow: 3px 3px 0px 0px #000; transform: translate(2px, 2px); }
+        /* SweetAlert2 Brutalist Override */
+        .swal-brutal { border: 3px solid #000 !important; border-radius: 0 !important; box-shadow: 8px 8px 0px 0px #000 !important; font-family: inherit !important; }
+        .swal-brutal .swal2-title { font-weight: 900 !important; text-transform: uppercase !important; letter-spacing: -0.025em !important; color: #000 !important; }
+        .swal-brutal .swal2-html-container { color: #374151 !important; }
+        .swal-btn-brutal { border: 3px solid #000 !important; border-radius: 0 !important; font-weight: 900 !important; text-transform: uppercase !important; letter-spacing: 0.05em !important; box-shadow: 3px 3px 0px 0px #000 !important; transition: all 0.1s !important; }
+        .swal-btn-brutal:hover { box-shadow: 1px 1px 0px 0px #000 !important; transform: translate(2px, 2px) !important; }
+    </style>
 </head>
-    <body class="bg-slate-50 text-slate-800 antialiased">
+    <body class="bg-amber-50 text-black antialiased">
         @include('profile.partials.navbar-user')
 
         <main class="pt-24 pb-16 px-4 sm:px-6 lg:px-10 max-w-6xl mx-auto space-y-10">
@@ -19,33 +28,31 @@
             <section>
                 <div class="max-w-3xl mx-auto text-center space-y-6">
                     <div>
-                        <!-- Canvas element where the animation will be rendered -->
-
-                        <h1 class="text-3xl sm:text-4xl font-semibold text-slate-900">Cek Status Eligible PTN dan Hasil TKA</h1>
-                        <p class="mt-8 text-sm sm:text-base text-slate-600">
+                        <h1 class="text-3xl sm:text-4xl font-black text-black uppercase tracking-tight">Cek Status Eligible PTN dan Hasil TKA</h1>
+                        <p class="mt-4 text-sm sm:text-base text-gray-600">
                             Masukkan NIS siswa untuk melihat status kelulusan kelayakan untuk masuk PTN yang telah ditetapkan oleh sekolah dan untuk melihat hasil TKA.
                         </p>
                     </div>
 
                     <!-- Search Bar -->
-                    <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 flex items-center gap-3 shadow-sm">
+                    <div class="border-[3px] border-black bg-white px-4 py-3 flex items-center gap-3 brutal-shadow">
                         <div class="flex items-center w-full gap-2">
-                            <span class="text-slate-400">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10A7 7 0 103 10a7 7 0 0114 0z" />
+                            <span class="text-black">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10A7 7 0 103 10a7 7 0 0114 0z" />
                                 </svg>
                             </span>
                             <input
                                 id="searchInput"
                                 type="text"
                                 placeholder="Masukkan NIS siswa"
-                                class="w-full border-0 focus:ring-0 text-sm text-slate-800 placeholder-slate-400"
+                                class="w-full border-0 focus:ring-0 text-sm text-black placeholder-gray-400 bg-transparent font-medium"
                                 inputmode="numeric"
                             >
                         </div>
                         <button
                             id="searchButton"
-                            class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-orange-500 text-white hover:bg-orange-600"
+                            class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-black uppercase tracking-wide border-[3px] border-black bg-orange-500 text-white hover:bg-orange-600 transition-colors"
                         >
                             Cari
                         </button>
@@ -53,8 +60,8 @@
 
                     <!-- Loading -->
                     <div id="loadingIndicator" class="hidden mt-4">
-                        <div class="flex justify-center items-center gap-3 text-sm text-slate-500">
-                            <span class="inline-block h-4 w-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
+                        <div class="flex justify-center items-center gap-3 text-sm text-black font-bold">
+                            <span class="inline-block h-5 w-5 border-[3px] border-orange-500 border-t-transparent rounded-full animate-spin"></span>
                             <span>Sedang mencari siswa...</span>
                         </div>
                     </div>
@@ -65,14 +72,14 @@
             <section id="resultsSection" class="hidden">
                 <div class="space-y-6">
                     <div id="resultsHeader" class="text-center space-y-2">
-                        <h2 class="text-xl font-semibold text-slate-900">Hasil pencarian</h2>
-                        <p id="resultsCount" class="text-sm text-slate-500"></p>
+                        <h2 class="text-xl font-black text-black uppercase tracking-tight">Hasil pencarian</h2>
+                        <p id="resultsCount" class="text-sm text-gray-600 font-medium"></p>
                     </div>
 
                     <div id="noResults" class="hidden text-center py-10 space-y-3">
-                        <p class="text-3xl">🔍</p>
-                        <h3 id="noResultsTitle" class="text-base font-semibold text-slate-700">NIS tidak ditemukan</h3>
-                        <p id="noResultsText" class="text-xs sm:text-sm text-slate-500">
+                        <p class="text-5xl">✕</p>
+                        <h3 id="noResultsTitle" class="text-base font-black text-black uppercase">NIS tidak ditemukan</h3>
+                        <p id="noResultsText" class="text-xs sm:text-sm text-gray-600">
                             Pastikan NIS yang kamu masukkan sudah benar, lalu coba lagi.
                         </p>
                     </div>
@@ -81,12 +88,12 @@
         </main>
 
         <!-- Modal Result -->
-        <div id="resultModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 opacity-0 invisible transition-opacity transition-visibility duration-150 pointer-events-none">
+        <div id="resultModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 opacity-0 invisible transition-opacity transition-visibility duration-150 pointer-events-none">
             <div class="relative">
                 <!-- Canvas positioned half outside -->
                 <div id="canvasContainer" class="absolute left-1/2 -translate-x-1/2 -top-20 z-10"></div>
                 <!-- Card content -->
-                <div id="modalDialog" class="max-w-md w-full bg-white rounded-3xl shadow-lg border border-slate-200 overflow-hidden" style="margin-top: 60px;">
+                <div id="modalDialog" class="max-w-md w-full bg-white border-[3px] border-black shadow-[8px_8px_0px_0px_#000] overflow-hidden" style="margin-top: 60px;">
                     <div id="modalContent" class="p-8"></div>
                 </div>
             </div>
@@ -138,7 +145,8 @@
                         title: 'Pencarian Kosong',
                         text: 'Masukkan NIS siswa terlebih dahulu.',
                         icon: 'warning',
-                        confirmButtonColor: '#ea580c'
+                        confirmButtonColor: '#f97316',
+                        customClass: { popup: 'swal-brutal', confirmButton: 'swal-btn-brutal' }
                     });
                     return;
                 }
@@ -175,7 +183,8 @@
                         title: 'Error',
                         text: 'Terjadi kesalahan saat mencari data.',
                         icon: 'error',
-                        confirmButtonColor: '#ea580c'
+                        confirmButtonColor: '#f97316',
+                        customClass: { popup: 'swal-brutal', confirmButton: 'swal-btn-brutal' }
                     });
                 }
             }
@@ -193,32 +202,32 @@
                         <div class="space-y-4">
                             <!-- Greeting -->
                             <div class="text-center space-y-1">
-                                <p class="text-sm text-slate-600">Selamat</p>
-                                <h1 class="text-2xl font-semibold text-slate-900 tracking-tight">Kamu Eligible untuk <br/> <span class="text-sm font-normal text-slate-600">Seleksi SNBP</span></h1>
+                                <p class="text-sm text-gray-600 font-bold uppercase tracking-wide">Selamat</p>
+                                <h1 class="text-2xl font-black text-black tracking-tight uppercase">Kamu Eligible untuk <br/> <span class="text-sm font-bold normal-case text-gray-600">Seleksi SNBP</span></h1>
                             </div>
                             
-                            <!-- Data Siswa - Minimal -->
-                            <div class="space-y-2 border-y border-slate-100 py-3">
+                            <!-- Data Siswa -->
+                            <div class="space-y-2 border-y-[2px] border-black py-3">
                                 <div class="flex justify-between text-sm">
-                                    <span class="text-slate-500">Nama</span>
-                                    <span class="text-slate-900 font-medium">${siswa.nama}</span>
+                                    <span class="text-gray-500 font-bold uppercase text-xs">Nama</span>
+                                    <span class="text-black font-black">${siswa.nama}</span>
                                 </div>
                                 <div class="flex justify-between text-sm">
-                                    <span class="text-slate-500">NIS</span>
-                                    <span class="text-slate-900 font-medium">${siswa.nis}</span>
+                                    <span class="text-gray-500 font-bold uppercase text-xs">NIS</span>
+                                    <span class="text-black font-black">${siswa.nis}</span>
                                 </div>
                             </div>
                             
                             <!-- Quote -->
-                            <p class="text-sm text-slate-600 italic text-center">
+                            <p class="text-sm text-gray-600 italic text-center">
                                 "${randomQuote}"
                             </p>
                             
                             <div class="flex gap-2">
-                                <a href="https://s.id/Hasil-TKA" target="_blank" class="flex-1 inline-flex items-center justify-center px-4 py-2 text-white font-semibold rounded-lg transition text-sm" style="background-color: #F97316;" onmouseover="this.style.backgroundColor='#EA580C'" onmouseout="this.style.backgroundColor='#F97316'">
+                                <a href="https://s.id/Hasil-TKA" target="_blank" class="flex-1 inline-flex items-center justify-center px-4 py-2.5 font-black text-white text-sm uppercase tracking-wide border-[3px] border-black bg-orange-500 hover:bg-orange-600 transition-colors">
                                     Lihat Hasil TKA
                                 </a>
-                                <button onclick="window.closeModal()" class="flex-1 inline-flex items-center justify-center px-4 py-2 text-white font-semibold rounded-lg transition text-sm" style="background-color: #CDB885;" onmouseover="this.style.backgroundColor='#b8a86f'" onmouseout="this.style.backgroundColor='#CDB885'">
+                                <button onclick="window.closeModal()" class="flex-1 inline-flex items-center justify-center px-4 py-2.5 font-black text-black text-sm uppercase tracking-wide border-[3px] border-black bg-amber-400 hover:bg-amber-300 transition-colors">
                                     Tutup
                                 </button>
                             </div>
@@ -240,32 +249,32 @@
                         <div class="space-y-4">
                             <!-- Greeting -->
                             <div class="text-center space-y-1">
-                                <p class="text-sm text-slate-600">Informasi</p>
-                                <h1 class="text-2xl font-semibold text-slate-900 tracking-tight">Kamu Tidak Eligible </br> <span class="font-normal text-sm">untuk seleksi SNBP, coba di SNBT ya 👋🏼</span> </h1>
+                                <p class="text-sm text-gray-600 font-bold uppercase tracking-wide">Informasi</p>
+                                <h1 class="text-2xl font-black text-black tracking-tight uppercase">Kamu Tidak Eligible </br> <span class="font-bold normal-case text-sm text-gray-600">untuk seleksi SNBP, coba di SNBT ya</span> </h1>
                             </div>
                             
-                            <!-- Data Siswa - Minimal -->
-                            <div class="space-y-2 border-y border-slate-100 py-3">
+                            <!-- Data Siswa -->
+                            <div class="space-y-2 border-y-[2px] border-black py-3">
                                 <div class="flex justify-between text-sm">
-                                    <span class="text-slate-500">Nama</span>
-                                    <span class="text-slate-900 font-medium">${siswa.nama}</span>
+                                    <span class="text-gray-500 font-bold uppercase text-xs">Nama</span>
+                                    <span class="text-black font-black">${siswa.nama}</span>
                                 </div>
                                 <div class="flex justify-between text-sm">
-                                    <span class="text-slate-500">NIS</span>
-                                    <span class="text-slate-900 font-medium">${siswa.nis}</span>
+                                    <span class="text-gray-500 font-bold uppercase text-xs">NIS</span>
+                                    <span class="text-black font-black">${siswa.nis}</span>
                                 </div>
                             </div>
                             
                             <!-- Quote -->
-                            <p class="text-sm text-slate-600 italic text-center">
+                            <p class="text-sm text-gray-600 italic text-center">
                                 "${randomQuote}"
                             </p>
                             
                             <div class="flex gap-2">
-                                <a href="https://s.id/Hasil-TKA" target="_blank" class="flex-1 inline-flex items-center justify-center px-4 py-2 text-white font-semibold rounded-lg transition text-sm" style="background-color: #F97316;" onmouseover="this.style.backgroundColor='#EA580C'" onmouseout="this.style.backgroundColor='#F97316'">
+                                <a href="https://s.id/Hasil-TKA" target="_blank" class="flex-1 inline-flex items-center justify-center px-4 py-2.5 font-black text-white text-sm uppercase tracking-wide border-[3px] border-black bg-orange-500 hover:bg-orange-600 transition-colors">
                                     Lihat Hasil TKA
                                 </a>
-                                <button onclick="window.closeModal()" class="flex-1 inline-flex items-center justify-center px-4 py-2 text-white font-semibold rounded-lg transition text-sm" style="background-color: #64748B;" onmouseover="this.style.backgroundColor='#475569'" onmouseout="this.style.backgroundColor='#64748B'">
+                                <button onclick="window.closeModal()" class="flex-1 inline-flex items-center justify-center px-4 py-2.5 font-black text-white text-sm uppercase tracking-wide border-[3px] border-black bg-gray-700 hover:bg-gray-600 transition-colors">
                                     Mengerti
                                 </button>
                             </div>
@@ -327,7 +336,8 @@
                     title: 'NIS Tidak Ditemukan',
                     text: 'Pastikan NIS yang kamu masukkan sudah benar, lalu coba lagi.',
                     icon: 'error',
-                    confirmButtonColor: '#ea580c'
+                    confirmButtonColor: '#f97316',
+                    customClass: { popup: 'swal-brutal', confirmButton: 'swal-btn-brutal' }
                 });
             }
             
@@ -357,5 +367,7 @@
             console.log('✅ Event listeners attached');
         });
         </script>
+
+        @include('profile.partials.footer')
     </body>
 </html>

@@ -8,55 +8,68 @@
     <title>Cari Sertifikat - Certisat</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .brutal-shadow { box-shadow: 5px 5px 0px 0px #000; }
+        .brutal-shadow:hover { box-shadow: 3px 3px 0px 0px #000; transform: translate(2px, 2px); }
+        .brutal-shadow-sm { box-shadow: 3px 3px 0px 0px #000; }
+        /* SweetAlert2 Brutalist Override */
+        .swal-brutal { border: 3px solid #000 !important; border-radius: 0 !important; box-shadow: 8px 8px 0px 0px #000 !important; font-family: inherit !important; }
+        .swal-brutal .swal2-title { font-weight: 900 !important; text-transform: uppercase !important; letter-spacing: -0.025em !important; color: #000 !important; }
+        .swal-brutal .swal2-html-container { color: #374151 !important; }
+        .swal-btn-brutal { border: 3px solid #000 !important; border-radius: 0 !important; font-weight: 900 !important; text-transform: uppercase !important; letter-spacing: 0.05em !important; box-shadow: 3px 3px 0px 0px #000 !important; transition: all 0.1s !important; }
+        .swal-btn-brutal:hover { box-shadow: 1px 1px 0px 0px #000 !important; transform: translate(2px, 2px) !important; }
+        .swal-btn-brutal-cancel { border: 3px solid #000 !important; border-radius: 0 !important; font-weight: 900 !important; text-transform: uppercase !important; background: #fff !important; color: #000 !important; box-shadow: 3px 3px 0px 0px #000 !important; }
+        .swal-icon-brutal { border-width: 3px !important; border-color: #000 !important; }
+    </style>
 </head>
-    <body class="bg-slate-50 text-slate-800 antialiased">
+    <body class="bg-amber-50 text-black antialiased min-h-screen flex flex-col">
         @include('profile.partials.navbar-user')
 
-        <main class="pt-24 pb-16 px-4 sm:px-6 lg:px-10 max-w-6xl mx-auto space-y-10">
+        <main class="pt-24 pb-16 px-4 sm:px-6 lg:px-10 max-w-6xl mx-auto space-y-10 flex-1">
             <!-- Search Section -->
             <section>
                 <div class="max-w-3xl mx-auto text-center space-y-6">
                     <div>
-                        <h1 class="text-3xl sm:text-4xl font-semibold text-slate-900">Cari Sertifikat Siswa</h1>
-                        <p class="mt-2 text-sm sm:text-base text-slate-600">
+                        <h1 class="text-3xl sm:text-4xl font-black text-black uppercase tracking-tight">Cari Sertifikat Siswa</h1>
+                        <p class="mt-3 text-sm sm:text-base text-gray-600">
                             Masukkan nama atau NIS siswa untuk melihat sertifikat yang sudah diterbitkan oleh sekolah.
                         </p>
                     </div>
 
                     <!-- Tabs -->
-                    <div class="inline-flex rounded-xl border border-slate-200 bg-white p-1">
+                    <div class="inline-flex border-[3px] border-black bg-white">
                         <button
                             id="tabNama"
-                            class="px-4 py-2 text-sm font-medium rounded-lg active bg-orange-500 text-white"
+                            class="px-5 py-2.5 text-sm font-bold uppercase tracking-wide active bg-orange-500 text-white border-r-[3px] border-black"
                         >
                             Nama siswa
                         </button>
                         <button
                             id="tabNis"
-                            class="px-4 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-50"
+                            class="px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-black hover:bg-amber-100"
                         >
                             NIS
                         </button>
                     </div>
 
                     <!-- Search Bar -->
-                    <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 flex items-center gap-3 shadow-sm">
+                    <div class="border-[3px] border-black bg-white px-4 py-3 flex items-center gap-3 brutal-shadow">
                         <div class="flex items-center w-full gap-2">
-                            <span class="text-slate-400">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10A7 7 0 103 10a7 7 0 0014 0z" />
+                            <span class="text-black">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10A7 7 0 103 10a7 7 0 0014 0z" />
                                 </svg>
                             </span>
                             <input
                                 id="searchInput"
                                 type="text"
                                 placeholder="Masukkan nama lengkap siswa"
-                                class="w-full border-0 focus:ring-0 text-sm text-slate-800 placeholder-slate-400"
+                                class="w-full border-0 focus:ring-0 text-sm text-black placeholder-gray-400 bg-transparent font-medium"
                             >
                         </div>
                         <button
                             id="searchButton"
-                            class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-orange-500 text-white hover:bg-orange-600"
+                            class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-black uppercase tracking-wide border-[3px] border-black bg-orange-500 text-white hover:bg-orange-600 transition-colors"
                         >
                             Cari
                         </button>
@@ -64,8 +77,8 @@
 
                     <!-- Loading -->
                     <div id="loadingIndicator" class="hidden">
-                        <div class="flex justify-center items-center gap-3 text-sm text-slate-500 mt-4">
-                            <span class="inline-block h-4 w-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></span>
+                        <div class="flex justify-center items-center gap-3 text-sm text-black font-bold mt-4">
+                            <span class="inline-block h-5 w-5 border-[3px] border-orange-500 border-t-transparent rounded-full animate-spin"></span>
                             <span>Sedang mencari sertifikat...</span>
                         </div>
                     </div>
@@ -76,35 +89,35 @@
             <section id="resultsSection" class="hidden">
                 <div class="space-y-6">
                     <div id="resultsHeader" class="text-center space-y-2">
-                        <h2 class="text-xl font-semibold text-slate-900">Hasil pencarian</h2>
-                        <p id="resultsCount" class="text-sm text-slate-500"></p>
+                        <h2 class="text-xl font-black text-black uppercase tracking-tight">Hasil pencarian</h2>
+                        <p id="resultsCount" class="text-sm text-gray-600 font-medium"></p>
                     </div>
 
                     <!-- Filter untuk daftar sertifikat (per siswa) -->
-                    <div id="certFilterBar" class="hidden flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-sm">
+                    <div id="certFilterBar" class="hidden flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white border-[3px] border-black px-4 py-3 brutal-shadow-sm">
                         <div class="flex-1">
-                            <label for="certFilterInput" class="block text-xs font-semibold text-slate-600 mb-1 text-left">
+                            <label for="certFilterInput" class="block text-xs font-black text-black mb-1 text-left uppercase tracking-wide">
                                 Filter sertifikat berdasarkan judul / jenis
                             </label>
                             <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-2 flex items-center text-slate-400">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 10A7 7 0 103 10a7 7 0 0014 0z" />
+                                <span class="absolute inset-y-0 left-0 pl-2 flex items-center text-black">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10A7 7 0 103 10a7 7 0 0014 0z" />
                                     </svg>
                                 </span>
                                 <input
                                     id="certFilterInput"
                                     type="text"
-                                    class="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
+                                    class="w-full pl-8 pr-3 py-2 border-[2px] border-black text-sm focus:border-orange-500 focus:ring-0 bg-amber-50 font-medium"
                                     placeholder="Contoh: web programming, BNSP, prestasi..."
                                 >
                             </div>
                         </div>
                         <button
                             id="backToStudentsButton"
-                            class="hidden inline-flex items-center justify-center px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
+                            class="hidden inline-flex items-center justify-center px-4 py-2 text-xs sm:text-sm font-black uppercase tracking-wide border-[3px] border-black text-black hover:bg-amber-100 transition-colors"
                         >
-                            Kembali ke daftar siswa
+                            ← Kembali ke daftar siswa
                         </button>
                     </div>
 
@@ -113,9 +126,9 @@
                     </div>
 
                     <div id="noResults" class="hidden text-center py-10 space-y-3">
-                        <p class="text-3xl">🔍</p>
-                        <h3 id="noResultsTitle" class="text-base font-semibold text-slate-700">Tidak ada hasil ditemukan</h3>
-                        <p id="noResultsText" class="text-xs sm:text-sm text-slate-500">
+                        <p class="text-5xl">✕</p>
+                        <h3 id="noResultsTitle" class="text-base font-black text-black uppercase">Tidak ada hasil ditemukan</h3>
+                        <p id="noResultsText" class="text-xs sm:text-sm text-gray-600">
                             Pastikan nama atau NIS yang kamu masukkan sudah benar, lalu coba lagi.
                         </p>
                     </div>
@@ -124,12 +137,12 @@
         </main>
 
         <!-- Modal Sertifikat -->
-        <div id="certificateModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 opacity-0 invisible transition-opacity duration-150">
-            <div id="modalDialog" class="max-w-xl w-full bg-white rounded-2xl shadow-md border border-slate-200">
+        <div id="certificateModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 opacity-0 invisible transition-opacity duration-150">
+            <div id="modalDialog" class="max-w-xl w-full bg-white border-[3px] border-black shadow-[8px_8px_0px_0px_#000]">
                 <div class="p-6">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold text-slate-900">Detail Sertifikat</h3>
-                        <button id="closeModal" class="text-slate-400 hover:text-slate-600 text-2xl leading-none">&times;</button>
+                        <h3 class="text-lg font-black text-black uppercase tracking-tight">Detail Sertifikat</h3>
+                        <button id="closeModal" class="w-8 h-8 flex items-center justify-center border-[2px] border-black text-black hover:bg-black hover:text-white transition-colors text-lg font-black">&times;</button>
                     </div>
                     <div id="modalContent"></div>
                 </div>
@@ -166,11 +179,11 @@
             function setActiveTab(activeTab, inactiveTab, placeholder, searchType) {
                 // Style tab aktif
                 activeTab.classList.add('bg-orange-500', 'text-white');
-                activeTab.classList.remove('text-slate-600');
+                activeTab.classList.remove('text-black');
                 
                 // Style tab non-aktif
                 inactiveTab.classList.remove('bg-orange-500', 'text-white');
-                inactiveTab.classList.add('text-slate-600');
+                inactiveTab.classList.add('text-black');
                 
                 // Ganti placeholder input
                 searchInput.setAttribute('placeholder', placeholder);
@@ -200,7 +213,8 @@
                         text: 'Masukkan kata kunci pencarian terlebih dahulu.',
                         icon: 'warning',
                         confirmButtonText: 'OK',
-                        customClass: { popup: 'rounded-2xl' }
+                        confirmButtonColor: '#f97316',
+                        customClass: { popup: 'swal-brutal', confirmButton: 'swal-btn-brutal' }
                     });
                     return;
                 }
@@ -237,7 +251,8 @@
                             text: data.message || 'Terjadi kesalahan.',
                             icon: 'error',
                             confirmButtonText: 'Mengerti',
-                            customClass: { popup: 'rounded-2xl' }
+                            confirmButtonColor: '#f97316',
+                            customClass: { popup: 'swal-brutal', confirmButton: 'swal-btn-brutal' }
                         });
                     }
                 })
@@ -249,7 +264,8 @@
                         text: 'Tidak dapat terhubung ke server. Coba lagi nanti.',
                         icon: 'error',
                         confirmButtonText: 'Mengerti',
-                        customClass: { popup: 'rounded-2xl' }
+                        confirmButtonColor: '#f97316',
+                        customClass: { popup: 'swal-brutal', confirmButton: 'swal-btn-brutal' }
                     });
                 });
             }
@@ -497,49 +513,50 @@
                     : '-';
                 const isPdf = cert.foto_sertifikat && cert.foto_sertifikat.toLowerCase().endsWith('.pdf');
                 const card = document.createElement('div');
-                card.className = 'rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow';
+                card.className = 'border-[3px] border-black bg-white hover:bg-amber-50 transition-all';
+                card.style.boxShadow = '4px 4px 0px 0px #000';
                 
                 card.innerHTML = `
                     <div class="p-6">
                         <div class="flex items-center justify-between mb-3">
-                            <div class="inline-flex items-center px-3 py-1 rounded-full bg-orange-500 text-white text-xs font-semibold">
+                            <div class="inline-flex items-center px-3 py-1 border-[2px] border-black bg-orange-500 text-white text-xs font-black uppercase tracking-wide">
                                 ${cert.jenis_sertifikat}
                             </div>
-                            <div class="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+                            <div class="text-xs text-black bg-amber-100 px-3 py-1 border-[2px] border-black font-bold">
                                 ${dateText}
                             </div>
                         </div>
-                        <h3 class="font-semibold text-sm text-slate-900 mb-1 line-clamp-2">${cert.judul_sertifikat}</h3>
-                        <p class="text-xs text-slate-500 mb-1">${cert.nama_siswa}</p>
-                        <p class="text-[11px] text-slate-400 mb-4">NIS: ${cert.nis}</p>
+                        <h3 class="font-black text-sm text-black mb-1 line-clamp-2 uppercase">${cert.judul_sertifikat}</h3>
+                        <p class="text-xs text-gray-600 font-medium mb-1">${cert.nama_siswa}</p>
+                        <p class="text-[11px] text-gray-500 font-bold mb-4">NIS: ${cert.nis}</p>
                         
                         <div class="flex items-center gap-2 mt-3">
                             ${cert.foto_sertifikat ? `
-                                <button onclick="viewSertifikat(${cert.id})" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
-                                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                <button onclick="viewSertifikat(${cert.id})" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-bold text-black border-[2px] border-black hover:bg-amber-100 transition uppercase tracking-wide">
+                                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
                                     <span>Lihat</span>
                                 </button>
                                 ${isPdf ? `
-                                    <button onclick="downloadSertifikat('{{ asset('storage') }}/${cert.foto_sertifikat}')" class="px-3 py-2 text-xs font-medium text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition" title="Buka di tab baru">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                    <button onclick="downloadSertifikat('{{ asset('storage') }}/${cert.foto_sertifikat}')" class="px-3 py-2 text-xs font-bold text-black border-[2px] border-black hover:bg-amber-100 transition" title="Buka di tab baru">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                                         </svg>
                                     </button>
                                 ` : `
-                                    <button onclick="downloadSertifikat('{{ asset('storage') }}/${cert.foto_sertifikat}', true)" class="px-3 py-2 text-xs font-medium text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition" title="Download ke komputer">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                    <button onclick="downloadSertifikat('{{ asset('storage') }}/${cert.foto_sertifikat}', true)" class="px-3 py-2 text-xs font-bold text-black border-[2px] border-black hover:bg-amber-100 transition" title="Download ke komputer">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                                         </svg>
                                     </button>
                                 `}
                             ` : `
-                                <button onclick="showDetailNoPhoto(${cert.id})" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-slate-700 border border-slate-200 rounded-lg hover:bg-slate-50 transition">
-                                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                <button onclick="showDetailNoPhoto(${cert.id})" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-bold text-black border-[2px] border-black hover:bg-amber-100 transition uppercase tracking-wide">
+                                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
                                     <span>Lihat detail</span>
                                 </button>
@@ -553,7 +570,8 @@
 
             function createStudentResultCard(student) {
                 const card = document.createElement('div');
-                card.className = 'rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer';
+                card.className = 'border-[3px] border-black bg-white hover:bg-amber-50 transition-all cursor-pointer';
+                card.style.boxShadow = '4px 4px 0px 0px #000';
                 card.onclick = () => {
                     const certs = currentResults.filter(c => c.nis === student.nis);
                     renderCertificatesForStudent(student, certs, true);
@@ -568,19 +586,16 @@
                     <div class="p-5 space-y-2">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-semibold text-slate-900">${student.nama}</p>
-                                <p class="text-xs text-slate-500">NIS: ${student.nis}</p>
+                                <p class="text-sm font-black text-black uppercase">${student.nama}</p>
+                                <p class="text-xs text-gray-600 font-bold">NIS: ${student.nis}</p>
                             </div>
-                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
+                            <span class="inline-flex items-center px-3 py-1 border-[2px] border-black bg-amber-400 text-black text-xs font-black">
                                 ${student.count} sertifikat
                             </span>
                         </div>
-                        <p class="text-[11px] text-slate-500">${detailText}</p>
-                        <div class="mt-2 text-xs font-medium text-orange-600 flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                            <span>Lihat daftar sertifikat</span>
+                        <p class="text-[11px] text-gray-500 font-medium">${detailText}</p>
+                        <div class="mt-2 text-xs font-black text-orange-600 flex items-center gap-1 uppercase tracking-wide">
+                            <span>Lihat daftar sertifikat →</span>
                         </div>
                     </div>
                 `;
@@ -590,27 +605,28 @@
 
             function createStudentNoCertCard(siswa) {
                 const card = document.createElement('div');
-                card.className = 'rounded-2xl border border-dashed border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow';
+                card.className = 'border-[3px] border-dashed border-black bg-white hover:bg-amber-50 transition-all';
+                card.style.boxShadow = '4px 4px 0px 0px #000';
 
                 card.innerHTML = `
                     <div class="p-6 flex flex-col gap-3">
                         <div class="flex items-center justify-between">
-                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
+                            <span class="inline-flex items-center px-3 py-1 border-[2px] border-black bg-amber-100 text-black text-xs font-black uppercase">
                                 Data siswa ditemukan
                             </span>
-                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-[11px] font-semibold">
+                            <span class="inline-flex items-center px-3 py-1 border-[2px] border-black bg-orange-100 text-orange-800 text-[11px] font-black uppercase">
                                 Belum ada sertifikat
                             </span>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-base text-slate-900 mb-1">${siswa.nama}</h3>
-                            <p class="text-xs text-slate-500 mb-1">NIS: ${siswa.nis}</p>
-                            <p class="text-xs text-slate-500">
+                            <h3 class="font-black text-base text-black mb-1 uppercase">${siswa.nama}</h3>
+                            <p class="text-xs text-gray-600 font-bold mb-1">NIS: ${siswa.nis}</p>
+                            <p class="text-xs text-gray-500 font-medium">
                                 ${siswa.kelas ? 'Kelas: ' + siswa.kelas + ' · ' : ''}
                                 ${siswa.jurusan ? 'Jurusan: ' + siswa.jurusan : ''}
                             </p>
                         </div>
-                        <p class="mt-2 text-[11px] text-slate-500">
+                        <p class="mt-2 text-[11px] text-gray-500">
                             Sertifikat untuk siswa ini belum tercatat di sistem. Jika kamu merasa sudah menerima sertifikat,
                             silakan hubungi admin atau wali kelas untuk memastikan datanya sudah diinput.
                         </p>
@@ -638,7 +654,8 @@
                             text: data.message,
                             icon: 'error',
                             confirmButtonText: 'Mengerti',
-                            customClass: { popup: 'rounded-2xl' }
+                            confirmButtonColor: '#f97316',
+                            customClass: { popup: 'swal-brutal', confirmButton: 'swal-btn-brutal' }
                         });
                     }
                 })
@@ -649,7 +666,8 @@
                         text: 'Terjadi kesalahan saat mengambil detail sertifikat.',
                         icon: 'error',
                         confirmButtonText: 'Mengerti',
-                        customClass: { popup: 'rounded-2xl' }
+                        confirmButtonColor: '#f97316',
+                        customClass: { popup: 'swal-brutal', confirmButton: 'swal-btn-brutal' }
                     });
                 });
             }
@@ -685,12 +703,12 @@
                 modalContent.innerHTML = `
                     <div class="space-y-6">
                         <div class="text-center mb-4">
-                            <h4 class="text-lg font-semibold text-slate-900 mb-3">${cert.judul_sertifikat}</h4>
+                            <h4 class="text-lg font-black text-black uppercase tracking-tight mb-3">${cert.judul_sertifikat}</h4>
                             ${photoSection}
                             <div class="mt-4 flex flex-wrap justify-center gap-3">
                                 <button
                                     onclick="openCardInModal('{{ url('/sertifikat') }}/${cert.id}/kartu')"
-                                    class="inline-flex items-center px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-orange-500 text-white hover:bg-orange-600"
+                                    class="inline-flex items-center px-4 py-2 text-xs sm:text-sm font-black uppercase tracking-wide border-[3px] border-black bg-orange-500 text-white hover:bg-orange-600 transition-colors"
                                 >
                                     Kartu & QR / Cetak
                                 </button>
@@ -698,30 +716,30 @@
                                     <a
                                         href="{{ asset('storage') }}/${cert.foto_sertifikat}"
                                         download
-                                        class="inline-flex items-center px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50"
+                                        class="inline-flex items-center px-4 py-2 text-xs sm:text-sm font-black uppercase tracking-wide border-[3px] border-black bg-white text-black hover:bg-amber-100 transition-colors"
                                     >
-                                        Unduh gambar sertifikat
+                                        Unduh sertifikat
                                     </a>
                                 ` : ''}
                             </div>
                         </div>
                         
 	                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="rounded-xl border border-slate-200 p-4 bg-slate-50">
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Nama siswa</label>
-                                <p class="text-sm font-medium text-slate-900">${cert.nama}</p>
+                            <div class="border-[2px] border-black p-4 bg-amber-50">
+                                <label class="block text-xs font-black text-black mb-1 uppercase tracking-wide">Nama siswa</label>
+                                <p class="text-sm font-medium text-black">${cert.nama}</p>
                             </div>
-                            <div class="rounded-xl border border-slate-200 p-4 bg-slate-50">
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">NIS</label>
-                                <p class="text-sm font-medium text-slate-900">${cert.nis}</p>
+                            <div class="border-[2px] border-black p-4 bg-amber-50">
+                                <label class="block text-xs font-black text-black mb-1 uppercase tracking-wide">NIS</label>
+                                <p class="text-sm font-medium text-black">${cert.nis}</p>
                             </div>
-                            <div class="rounded-xl border border-slate-200 p-4 bg-slate-50">
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis sertifikat</label>
-                                <p class="text-sm font-medium text-slate-900">${cert.jenis_sertifikat}</p>
+                            <div class="border-[2px] border-black p-4 bg-amber-50">
+                                <label class="block text-xs font-black text-black mb-1 uppercase tracking-wide">Jenis sertifikat</label>
+                                <p class="text-sm font-medium text-black">${cert.jenis_sertifikat}</p>
                             </div>
-                            <div class="rounded-xl border border-slate-200 p-4 bg-slate-50">
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal diraih</label>
-                                <p class="text-sm font-medium text-slate-900">${dateText}</p>
+                            <div class="border-[2px] border-black p-4 bg-amber-50">
+                                <label class="block text-xs font-black text-black mb-1 uppercase tracking-wide">Tanggal diraih</label>
+                                <p class="text-sm font-medium text-black">${dateText}</p>
                             </div>
                         </div>
                     </div>
@@ -835,5 +853,7 @@
             }, 800);
         }
         </script>
+
+        @include('profile.partials.footer')
     </body>
 </html>
