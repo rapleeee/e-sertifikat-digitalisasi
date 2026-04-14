@@ -7,7 +7,7 @@
         <div>
             <h2 class="text-xl font-black uppercase tracking-tight mb-3 text-amber-400">SMK Informatika Pesat</h2>
             <p class="text-sm text-gray-300 leading-relaxed">
-                Platform manajemen sertifikat online untuk melihat sertifikasi yang sudah anda miliki dan diverifikasi langsung oleh industri.
+                Platform cek status eligible PTN dan hasil TKA online untuk siswa SMK Informatika Pesat yang diverifikasi langsung oleh sekolah.
             </p>
         </div>
 
@@ -16,7 +16,6 @@
             <h2 class="text-xl font-black uppercase tracking-tight mb-3 text-amber-400">Navigasi</h2>
             <ul class="space-y-2 text-sm">
                 <li><a href="/" class="inline-block font-bold uppercase tracking-wide hover:text-amber-400 border-b-2 border-transparent hover:border-amber-400 transition-all">Beranda</a></li>
-                <li><a href="{{ route('pencarian.sertifikat') }}" class="inline-block font-bold uppercase tracking-wide hover:text-amber-400 border-b-2 border-transparent hover:border-amber-400 transition-all">Sertifikasi</a></li>
                 <li><a href="{{ route('pencarian.eligible') }}" class="inline-block font-bold uppercase tracking-wide hover:text-amber-400 border-b-2 border-transparent hover:border-amber-400 transition-all">Eligible PTN</a></li>
                 <li><a href="{{ route('laporan.public.form') }}" class="inline-block font-bold uppercase tracking-wide hover:text-amber-400 border-b-2 border-transparent hover:border-amber-400 transition-all">Laporan</a></li>
             </ul>

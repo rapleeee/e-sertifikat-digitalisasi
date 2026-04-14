@@ -17,12 +17,9 @@
                 <a href="/" class="px-4 py-1.5 text-sm lg:text-base font-bold text-black uppercase tracking-wide border-2 border-transparent hover:border-black hover:bg-white transition-all">
                     Home
                 </a>
-                <a href="{{ route('pencarian.sertifikat') }}" class="px-4 py-1.5 text-sm lg:text-base font-bold text-black uppercase tracking-wide border-2 border-transparent hover:border-black hover:bg-white transition-all">
-                    Sertifikat
-                </a>
-                {{-- <a href="{{ route('pencarian.eligible') }}" class="px-4 py-1.5 text-sm lg:text-base font-bold text-black uppercase tracking-wide border-2 border-transparent hover:border-black hover:bg-white transition-all">
+                <a href="{{ route('pencarian.eligible') }}" class="px-4 py-1.5 text-sm lg:text-base font-bold text-black uppercase tracking-wide border-2 border-transparent hover:border-black hover:bg-white transition-all">
                     Eligible PTN
-                </a> --}}
+                </a>
                 <a href="{{ route('laporan.public.form') }}" class="px-4 py-1.5 text-sm lg:text-base font-bold text-black uppercase tracking-wide border-2 border-transparent hover:border-black hover:bg-white transition-all">
                     Laporan
                 </a>
@@ -55,12 +52,9 @@
             <a href="/" class="block px-4 py-3 font-bold text-black uppercase tracking-wide border-2 border-black bg-white hover:bg-black hover:text-white transition-colors">
                 Beranda
             </a>
-            <a href="{{ route('pencarian.sertifikat') }}" class="block px-4 py-3 font-bold text-black uppercase tracking-wide border-2 border-black bg-white hover:bg-black hover:text-white transition-colors">
-                Sertifikat
-            </a>
-            {{-- <a href="{{ route('pencarian.eligible') }}" class="block px-4 py-3 font-bold text-black uppercase tracking-wide border-2 border-black bg-white hover:bg-black hover:text-white transition-colors">
+            <a href="{{ route('pencarian.eligible') }}" class="block px-4 py-3 font-bold text-black uppercase tracking-wide border-2 border-black bg-white hover:bg-black hover:text-white transition-colors">
                 Eligible PTN
-            </a> --}}
+            </a>
             <a href="{{ route('laporan.public.form') }}" class="block px-4 py-3 font-bold text-black uppercase tracking-wide border-2 border-black bg-white hover:bg-black hover:text-white transition-colors">
                 Laporan
             </a>
