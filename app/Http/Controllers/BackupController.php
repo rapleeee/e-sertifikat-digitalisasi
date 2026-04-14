@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\Process\Process;
 
 class BackupController extends Controller
 {
@@ -44,37 +42,36 @@ class BackupController extends Controller
 
         $filePath = $storagePath . '/' . $filename;
 
-        $command = [
-            'mysqldump',
-            '--host=' . $host,
-            '--port=' . $port,
-            '--user=' . $username,
-            '--skip-lock-tables',
-            '--routines',
-            '--triggers',
-            $database,
-        ];
+        // Build mysqldump command - redirect SQL to file, capture stderr separately
+        $passwordArg = !empty($password) ? ' --password=' . escapeshellarg($password) : '';
+        $errFile = $storagePath . '/' . $filename . '.err';
+        $command = sprintf(
+            'mysqldump --host=%s --port=%s --user=%s%s --skip-lock-tables --routines --triggers %s > %s 2> %s',
+            escapeshellarg($host),
+            escapeshellarg((string) $port),
+            escapeshellarg($username),
+            $passwordArg,
+            escapeshellarg($database),
+            escapeshellarg($filePath),
+            escapeshellarg($errFile)
+        );
 
-        if (!empty($password)) {
-            array_splice($command, 4, 0, '--password=' . $password);
+        $exitCode = 0;
+        exec($command, $output, $exitCode);
+
+        $errorMsg = file_exists($errFile) ? trim(file_get_contents($errFile)) : '';
+        if (file_exists($errFile)) {
+            unlink($errFile);
         }
 
-        $process = new Process($command);
-        $process->setTimeout(300);
-
-        try {
-            $process->run();
-
-            if (!$process->isSuccessful()) {
-                return back()->with('error', 'Backup gagal: ' . $process->getErrorOutput());
+        if ($exitCode !== 0 || !file_exists($filePath) || filesize($filePath) === 0) {
+            if (file_exists($filePath)) {
+                unlink($filePath);
             }
-
-            file_put_contents($filePath, $process->getOutput());
-
-            return back()->with('success', 'Backup berhasil dibuat: ' . $filename);
-        } catch (\Exception $e) {
-            return back()->with('error', 'Backup gagal: ' . $e->getMessage());
+            return back()->with('error', 'Backup gagal (exit code: ' . $exitCode . '): ' . $errorMsg);
         }
+
+        return back()->with('success', 'Backup berhasil dibuat: ' . $filename);
     }
 
     public function download(string $filename)
