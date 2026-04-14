@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SertifikatController;
 use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\BackupController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -91,6 +92,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/laporan-admin/{laporan}', [LaporanController::class, 'show'])->name('laporan.show');
         Route::post('/laporan-admin/{laporan}/reply', [LaporanController::class, 'reply'])->name('laporan.reply');
         Route::patch('/laporan-admin/{laporan}/status', [LaporanController::class, 'updateStatus'])->name('laporan.update-status');
+
+        // Backup Database
+        Route::get('/backup', [BackupController::class, 'index'])->name('backup.index');
+        Route::post('/backup', [BackupController::class, 'create'])->name('backup.create');
+        Route::get('/backup/{filename}/download', [BackupController::class, 'download'])->name('backup.download');
+        Route::delete('/backup/{filename}', [BackupController::class, 'destroy'])->name('backup.destroy');
     });
 
     // Profile accessible by all authenticated users

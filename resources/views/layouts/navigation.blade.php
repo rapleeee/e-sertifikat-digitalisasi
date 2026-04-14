@@ -169,6 +169,15 @@
                                     <span x-show="open" x-transition>Manajemen User</span>
                                 </a>
                             </li>
+                            <li>
+                                <a href="{{ route('backup.index') }}"
+                                   class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                                    <div class="w-8 h-8 flex items-center justify-center text-gray-500">
+                                        <ion-icon name="server-outline" class="w-5 h-5"></ion-icon>
+                                    </div>
+                                    <span x-show="open" x-transition>Backup Database</span>
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 @endif
