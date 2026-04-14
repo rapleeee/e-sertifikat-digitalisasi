@@ -34,7 +34,7 @@ class BackupController extends Controller
         $port = config('database.connections.mysql.port', 3306);
 
         $filename = 'backup_' . $database . '_' . now()->format('Y-m-d_His') . '.sql';
-        $storagePath = storage_path('app/backups');
+        $storagePath = storage_path('app/private/backups');
 
         if (!is_dir($storagePath)) {
             mkdir($storagePath, 0755, true);
