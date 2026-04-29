@@ -13,10 +13,24 @@ class Sertifikat extends Model
 
     protected $fillable = [
         'nis',
-        'jenis_sertifikat', 
+        'jenis_sertifikat',
         'judul_sertifikat',
         'tanggal_diraih',
-        'foto_sertifikat'
+        'foto_sertifikat',
+        // API contract fields
+        'nomor_sertifikat',
+        'nama_sertifikat',
+        'penerbit',
+        'tanggal_terbit',
+        'tanggal_kadaluarsa',
+        'url_sertifikat',
+        'kategori',
+    ];
+
+    protected $casts = [
+        'tanggal_diraih'      => 'date',
+        'tanggal_terbit'      => 'date',
+        'tanggal_kadaluarsa'  => 'date',
     ];
 
     public function siswa()
