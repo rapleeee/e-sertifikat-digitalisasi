@@ -165,7 +165,7 @@
                 return `
                     <div class="space-y-4 text-left">
                         <div class="text-center space-y-2">
-                            <span class="inline-flex items-center gap-1.5 bg-amber-300 text-[#1a1a2e] text-xs font-bold px-3 py-1 rounded-full" style="border: 2px solid #1a1a2e;">
+                            <span class="inline-flex items-center gap-1.5 bg-red-300 text-[#1a1a2e] text-xs font-bold px-3 py-1 rounded-full" style="border: 2px solid #1a1a2e;">
                                 KELULUSAN DITUNDA
                             </span>
                             <h2 class="text-xl sm:text-2xl font-bold text-[#1a1a2e] leading-tight">Perhatian, ${escapeHtml(siswa.nama)}</h2>
@@ -184,7 +184,7 @@
                                 <span class="text-[#1a1a2e] font-bold text-right">${escapeHtml(jurusan)}</span>
                             </div>
                         </div>
-                        <div class="bg-amber-100 rounded-xl p-4 text-sm text-[#1a1a2e] leading-relaxed" style="border: 2px solid #1a1a2e;">
+                        <div class="bg-red-100 rounded-xl p-4 text-sm text-[#1a1a2e] leading-relaxed" style="border: 2px solid #1a1a2e;">
                             ${deferredNote}
                         </div>
                     </div>
@@ -241,7 +241,7 @@
                         <button type="button" data-id="${siswa.id}" class="graduation-result-btn w-full text-left bg-[#fefbf4] nb-border-2 rounded-xl p-3 hover:bg-yellow-100 transition">
                             <span class="block text-sm font-bold text-[#1a1a2e]">${escapeHtml(siswa.nama)}</span>
                             <span class="block text-xs text-gray-500">NIS ${escapeHtml(siswa.nis)} · ${escapeHtml(siswa.jurusan || '-')}</span>
-                            <span class="inline-flex mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${siswa.status === 'tunda_lulus' ? 'bg-amber-200 text-amber-800' : 'bg-green-200 text-green-800'}">
+                            <span class="inline-flex mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${siswa.status === 'tunda_lulus' ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800'}">
                                 ${siswa.status === 'tunda_lulus' ? 'KELULUSAN DITUNDA' : 'LULUS'}
                             </span>
                         </button>
