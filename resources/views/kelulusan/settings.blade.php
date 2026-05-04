@@ -11,7 +11,7 @@
         :class="open ? 'ml-64' : ''"
         class="transition-all duration-300"
     >
-        <main class="pt-24 pb-12 px-4 sm:px-6 lg:px-10 max-w-5xl mx-auto space-y-6">
+        <main class="pt-24 pb-12 px-4 sm:px-6 lg:px-10 max-w-full mx-auto space-y-6">
             <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-semibold text-gray-900">Pengaturan Kelulusan</h1>
@@ -98,9 +98,24 @@
                         </div>
                     </div>
 
+                    <div>
+                        <label for="graduation_note" class="block text-sm font-medium text-slate-700 mb-1">Catatan Pengambilan SKL</label>
+                        <textarea
+                            id="graduation_note"
+                            name="graduation_note"
+                            rows="4"
+                            maxlength="1000"
+                            class="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-100"
+                            required
+                        >{{ old('graduation_note', $graduationNote) }}</textarea>
+                        <p class="mt-1 text-xs text-slate-500">
+                            Catatan ini akan tampil di popup hasil cek kelulusan siswa.
+                        </p>
+                    </div>
+
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
                         <p class="text-xs text-slate-500">
-                            Default awal fitur ini adalah 5 Mei 2026 pukul 10:00 WIB.
+                            Default awal fitur ini adalah 5 Mei 2026 pukul 10:00 WIB dengan catatan pengambilan SKL tanggal 8 Mei 2026.
                         </p>
                         <button type="submit" class="inline-flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-5 py-2.5 rounded-lg shadow-sm transition">
                             <ion-icon name="save-outline" class="w-4 h-4"></ion-icon>

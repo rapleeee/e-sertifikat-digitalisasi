@@ -14,6 +14,8 @@ class KelulusanFeatureTest extends TestCase
 
     public function test_public_graduation_page_can_be_rendered(): void
     {
+        $this->withoutVite();
+
         $response = $this->get(route('kelulusan.index'));
 
         $response->assertOk();
@@ -70,6 +72,7 @@ class KelulusanFeatureTest extends TestCase
             ->put(route('kelulusan.settings.update'), [
                 'announcement_date' => '2026-05-05',
                 'announcement_time' => '10:00',
+                'graduation_note' => 'Ambil SKL di TU dengan membawa bukti bebas administrasi.',
             ]);
 
         $response->assertRedirect(route('kelulusan.settings'));
@@ -78,6 +81,11 @@ class KelulusanFeatureTest extends TestCase
         $this->assertDatabaseHas('app_settings', [
             'key' => 'kelulusan_pengumuman_dibuka_pada',
             'value' => '2026-05-05 10:00:00',
+        ]);
+
+        $this->assertDatabaseHas('app_settings', [
+            'key' => 'kelulusan_catatan_pengambilan_skl',
+            'value' => 'Ambil SKL di TU dengan membawa bukti bebas administrasi.',
         ]);
     }
 }

@@ -101,6 +101,7 @@
         const loading = document.getElementById('graduationLoading');
         const multipleResults = document.getElementById('multipleResults');
         const typeButtons = Array.from(document.querySelectorAll('.search-type-btn'));
+        const graduationNote = @json($graduationNote);
         let searchType = 'nis';
 
         const setText = (id, value) => {
@@ -147,6 +148,7 @@
 
         function resultHtml(siswa) {
             const jurusan = siswa.jurusan || '-';
+            const formattedNote = escapeHtml(graduationNote).replace(/\n/g, '<br>');
 
             return `
                 <div class="space-y-4 text-left">
@@ -174,7 +176,7 @@
                         Dinyatakan <strong>lulus</strong> dari SMK Informatika Pesat.
                     </p>
                     <div class="bg-yellow-100 rounded-xl p-4 text-xs sm:text-sm text-[#1a1a2e] leading-relaxed" style="border: 2px solid #1a1a2e;">
-                        <strong>Catatan:</strong> Pengambilan Surat Keterangan Lulus dapat dilakukan mulai tanggal 8 Mei 2026 di ruang TU. Silakan membawa bukti bebas administrasi dari bagian keuangan.
+                        <strong>Catatan:</strong> ${formattedNote}
                     </div>
                 </div>
             `;

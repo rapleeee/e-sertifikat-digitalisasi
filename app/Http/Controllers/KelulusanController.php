@@ -14,7 +14,11 @@ class KelulusanController extends Controller
 {
     private const SETTING_KEY = 'kelulusan_pengumuman_dibuka_pada';
 
+    private const NOTE_KEY = 'kelulusan_catatan_pengambilan_skl';
+
     private const DEFAULT_OPEN_AT = '2026-05-05 10:00:00';
+
+    private const DEFAULT_NOTE = 'Pengambilan Surat Keterangan Lulus dapat dilakukan mulai tanggal 8 Mei 2026 di ruang TU. Silakan membawa bukti bebas administrasi dari bagian keuangan.';
 
     public function index(): View
     {
@@ -23,6 +27,7 @@ class KelulusanController extends Controller
         return view('kelulusan.index', [
             'announcementAt' => $announcementAt,
             'canOpen' => now()->gte($announcementAt),
+            'graduationNote' => $this->graduationNote(),
         ]);
     }
 
@@ -77,6 +82,7 @@ class KelulusanController extends Controller
 
         return view('kelulusan.settings', [
             'announcementAt' => $announcementAt,
+            'graduationNote' => $this->graduationNote(),
             'totalLulus' => Siswa::query()->where('status', 'lulus')->count(),
             'totalKelas12' => Siswa::query()->where('kelas', 'like', '%XII%')->count(),
         ]);
@@ -87,6 +93,7 @@ class KelulusanController extends Controller
         $validated = $request->validate([
             'announcement_date' => ['required', 'date_format:Y-m-d'],
             'announcement_time' => ['required', 'date_format:H:i'],
+            'graduation_note' => ['required', 'string', 'max:1000'],
         ]);
 
         $announcementAt = Carbon::createFromFormat(
@@ -96,10 +103,11 @@ class KelulusanController extends Controller
         );
 
         AppSetting::setValue(self::SETTING_KEY, $announcementAt->format('Y-m-d H:i:s'));
+        AppSetting::setValue(self::NOTE_KEY, trim($validated['graduation_note']));
 
         return redirect()
             ->route('kelulusan.settings')
-            ->with('success', 'Waktu buka cek kelulusan berhasil diperbarui.');
+            ->with('success', 'Pengaturan cek kelulusan berhasil diperbarui.');
     }
 
     private function announcementAt(): Carbon
@@ -107,5 +115,10 @@ class KelulusanController extends Controller
         $value = AppSetting::valueFor(self::SETTING_KEY, self::DEFAULT_OPEN_AT);
 
         return Carbon::parse($value ?: self::DEFAULT_OPEN_AT, config('app.timezone'));
+    }
+
+    private function graduationNote(): string
+    {
+        return AppSetting::valueFor(self::NOTE_KEY, self::DEFAULT_NOTE) ?: self::DEFAULT_NOTE;
     }
 }

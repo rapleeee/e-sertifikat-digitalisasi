@@ -17,10 +17,18 @@ return new class extends Migration
         });
 
         DB::table('app_settings')->insert([
-            'key' => 'kelulusan_pengumuman_dibuka_pada',
-            'value' => '2026-05-05 10:00:00',
-            'created_at' => now(),
-            'updated_at' => now(),
+            [
+                'key' => 'kelulusan_pengumuman_dibuka_pada',
+                'value' => '2026-05-05 10:00:00',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'key' => 'kelulusan_catatan_pengambilan_skl',
+                'value' => 'Pengambilan Surat Keterangan Lulus dapat dilakukan mulai tanggal 8 Mei 2026 di ruang TU. Silakan membawa bukti bebas administrasi dari bagian keuangan.',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
     }
 
