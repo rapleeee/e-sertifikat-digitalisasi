@@ -29,7 +29,7 @@ class UpdateSiswaRequest extends FormRequest
             'kelas' => ['nullable', 'string', 'max:50'],
             'jurusan' => ['nullable', 'string', 'max:100'],
             'angkatan' => ['nullable', 'string', 'max:10'],
-            'status' => ['nullable', 'string', 'in:aktif,lulus,alumni'],
+            'status' => ['nullable', 'string', 'in:aktif,lulus,tunda_lulus,alumni'],
         ];
     }
 

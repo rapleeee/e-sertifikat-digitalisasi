@@ -50,7 +50,7 @@ class KelulusanController extends Controller
         $queryText = trim($validated['query']);
 
         $query = Siswa::query()
-            ->where('status', 'lulus');
+            ->whereIn('status', ['lulus', 'tunda_lulus']);
 
         if ($validated['type'] === 'nis') {
             $query->where('nis', $queryText);
@@ -61,13 +61,17 @@ class KelulusanController extends Controller
         $results = $query
             ->orderBy('nama')
             ->limit(10)
-            ->get(['id', 'nama', 'nis', 'kelas', 'jurusan'])
+            ->get(['id', 'nama', 'nis', 'kelas', 'jurusan', 'status'])
             ->map(fn (Siswa $siswa) => [
                 'id' => $siswa->id,
                 'nama' => $siswa->nama,
                 'nis' => $siswa->nis,
                 'kelas' => $siswa->kelas,
                 'jurusan' => $siswa->jurusan,
+                'status' => $siswa->status,
+                'keterangan' => $siswa->status === 'tunda_lulus'
+                    ? "Kelulusan Anda {$siswa->nama} ditunda. Silakan datang ke sekolah menyelesaikan Ujian Pesat Method."
+                    : null,
             ])
             ->values();
 
@@ -84,6 +88,7 @@ class KelulusanController extends Controller
             'announcementAt' => $announcementAt,
             'graduationNote' => $this->graduationNote(),
             'totalLulus' => Siswa::query()->where('status', 'lulus')->count(),
+            'totalTundaLulus' => Siswa::query()->where('status', 'tunda_lulus')->count(),
             'totalKelas12' => Siswa::query()->where('kelas', 'like', '%XII%')->count(),
         ]);
     }

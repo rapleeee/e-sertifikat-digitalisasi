@@ -109,6 +109,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::delete('bulk-destroy', [SiswaController::class, 'bulkDestroy'])->name('bulk-destroy');
             Route::post('bulk-promote', [SiswaController::class, 'bulkPromote'])->name('bulk-promote');
             Route::post('bulk-graduate', [SiswaController::class, 'bulkGraduate'])->name('bulk-graduate');
+            Route::post('bulk-defer-graduation', [SiswaController::class, 'bulkDeferGraduation'])->name('bulk-defer-graduation');
+            Route::post('bulk-cancel-deferred-graduation', [SiswaController::class, 'bulkCancelDeferredGraduation'])->name('bulk-cancel-deferred-graduation');
             Route::get('{siswa}', [SiswaController::class, 'show'])->name('show');
             Route::get('{siswa}/edit', [SiswaController::class, 'edit'])->name('edit');
             Route::put('{siswa}', [SiswaController::class, 'update'])->name('update');

@@ -228,6 +228,7 @@
                                 @endphp
                                 <option value="aktif" {{ $currentStatus === 'aktif' ? 'selected' : '' }}>Aktif</option>
                                 <option value="lulus" {{ $currentStatus === 'lulus' ? 'selected' : '' }}>Lulus</option>
+                                <option value="tunda_lulus" {{ $currentStatus === 'tunda_lulus' ? 'selected' : '' }}>Tunda Lulus</option>
                                 <option value="alumni" {{ $currentStatus === 'alumni' ? 'selected' : '' }}>Alumni</option>
                             </select>
                             @error('status')

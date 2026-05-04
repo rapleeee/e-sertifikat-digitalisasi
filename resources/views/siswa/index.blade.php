@@ -148,6 +148,7 @@
                                     <option value="">Semua</option>
                                     <option value="aktif" {{ $currentStatus === 'aktif' ? 'selected' : '' }}>Aktif</option>
                                     <option value="lulus" {{ $currentStatus === 'lulus' ? 'selected' : '' }}>Lulus</option>
+                                    <option value="tunda_lulus" {{ $currentStatus === 'tunda_lulus' ? 'selected' : '' }}>Tunda Lulus</option>
                                     <option value="alumni" {{ $currentStatus === 'alumni' ? 'selected' : '' }}>Alumni</option>
                                 </select>
                             </div>
@@ -188,6 +189,22 @@
                             >
                                 Luluskan Kelas XII
                             </button>
+                            <button
+                                type="button"
+                                id="bulk-defer-graduation-button"
+                                class="inline-flex items-center px-3 py-1.5 rounded-lg border border-amber-200 text-amber-700 font-semibold hover:bg-amber-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                                disabled
+                            >
+                                Tunda Kelulusan XII
+                            </button>
+                            <button
+                                type="button"
+                                id="bulk-cancel-deferred-graduation-button"
+                                class="inline-flex items-center px-3 py-1.5 rounded-lg border border-cyan-200 text-cyan-700 font-semibold hover:bg-cyan-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                                disabled
+                            >
+                                Batalkan Tunda
+                            </button>
                         </div>
                         <button
                             type="button"
@@ -219,7 +236,7 @@
                             @forelse($siswas as $siswa)
                                 <tr class="hover:bg-slate-50 transition">
                                     <td class="px-4 py-4 text-center">
-                                        <input type="checkbox" class="siswa-checkbox rounded border-slate-300 text-orange-500 focus:ring-orange-400" value="{{ $siswa->id }}">
+                                        <input type="checkbox" class="siswa-checkbox rounded border-slate-300 text-orange-500 focus:ring-orange-400" value="{{ $siswa->id }}" data-status="{{ $siswa->status ?? 'aktif' }}">
                                     </td>
                                     <td class="px-6 py-4">
                                         <div>
@@ -241,12 +258,17 @@
                                             $status = $siswa->status ?? 'aktif';
                                             $statusClass = match ($status) {
                                                 'lulus' => 'bg-blue-100 text-blue-700',
+                                                'tunda_lulus' => 'bg-amber-100 text-amber-700',
                                                 'alumni' => 'bg-violet-100 text-violet-700',
                                                 default => 'bg-emerald-100 text-emerald-700',
                                             };
+                                            $statusLabel = match ($status) {
+                                                'tunda_lulus' => 'Tunda Lulus',
+                                                default => ucfirst($status),
+                                            };
                                         @endphp
                                         <span class="inline-flex items-center px-3 py-1 rounded-full {{ $statusClass }} text-xs font-semibold shadow-sm">
-                                            {{ ucfirst($status) }}
+                                            {{ $statusLabel }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4">
@@ -378,6 +400,16 @@
                 <div id="bulk-graduate-ids-container"></div>
             </form>
 
+            <form id="bulk-defer-graduation-form" method="POST" action="{{ route('siswa.bulk-defer-graduation') }}">
+                @csrf
+                <div id="bulk-defer-graduation-ids-container"></div>
+            </form>
+
+            <form id="bulk-cancel-deferred-graduation-form" method="POST" action="{{ route('siswa.bulk-cancel-deferred-graduation') }}">
+                @csrf
+                <div id="bulk-cancel-deferred-graduation-ids-container"></div>
+            </form>
+
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
                     const selectAll = document.getElementById('select-all-siswa');
@@ -385,6 +417,8 @@
                     const bulkDeleteButton = document.getElementById('bulk-delete-button');
                     const bulkPromoteButton = document.getElementById('bulk-promote-button');
                     const bulkGraduateButton = document.getElementById('bulk-graduate-button');
+                    const bulkDeferGraduationButton = document.getElementById('bulk-defer-graduation-button');
+                    const bulkCancelDeferredGraduationButton = document.getElementById('bulk-cancel-deferred-graduation-button');
                     const bulkForm = document.getElementById('bulk-delete-form');
                     const idsContainer = document.getElementById('bulk-delete-ids-container');
                     const promoteForm = document.getElementById('bulk-promote-form');
@@ -393,15 +427,28 @@
                     const kelasBaruInput = document.getElementById('bulk-kelas-baru');
                     const graduateForm = document.getElementById('bulk-graduate-form');
                     const graduateIdsContainer = document.getElementById('bulk-graduate-ids-container');
+                    const deferGraduationForm = document.getElementById('bulk-defer-graduation-form');
+                    const deferGraduationIdsContainer = document.getElementById('bulk-defer-graduation-ids-container');
+                    const cancelDeferredGraduationForm = document.getElementById('bulk-cancel-deferred-graduation-form');
+                    const cancelDeferredGraduationIdsContainer = document.getElementById('bulk-cancel-deferred-graduation-ids-container');
 
                     function updateBulkButtonState() {
-                        const anyChecked = checkboxes().some(cb => cb.checked);
+                        const selected = checkboxes().filter(cb => cb.checked);
+                        const anyChecked = selected.length > 0;
+                        const hasDeferredSelected = selected.some(cb => cb.dataset.status === 'tunda_lulus');
+
                         bulkDeleteButton.disabled = !anyChecked;
                         if (bulkPromoteButton) {
                             bulkPromoteButton.disabled = !anyChecked || !kelasSelect?.value;
                         }
                         if (bulkGraduateButton) {
                             bulkGraduateButton.disabled = !anyChecked;
+                        }
+                        if (bulkDeferGraduationButton) {
+                            bulkDeferGraduationButton.disabled = !anyChecked;
+                        }
+                        if (bulkCancelDeferredGraduationButton) {
+                            bulkCancelDeferredGraduationButton.disabled = !hasDeferredSelected;
                         }
                     }
 
@@ -551,6 +598,91 @@
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 graduateForm.submit();
+                            }
+                        });
+                    });
+
+                    bulkDeferGraduationButton?.addEventListener('click', function () {
+                        const selected = checkboxes().filter(cb => cb.checked).map(cb => cb.value);
+
+                        if (!selected.length) {
+                            return;
+                        }
+
+                        deferGraduationIdsContainer.innerHTML = '';
+                        selected.forEach(id => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'ids[]';
+                            input.value = id;
+                            deferGraduationIdsContainer.appendChild(input);
+                        });
+
+                        if (typeof Swal === 'undefined') {
+                            deferGraduationForm.submit();
+                            return;
+                        }
+
+                        Swal.fire({
+                            title: 'Tunda kelulusan siswa kelas XII?',
+                            text: `${selected.length} siswa dipilih. Sistem hanya akan menunda siswa yang kelasnya berisi "XII".`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d97706',
+                            cancelButtonColor: '#6b7280',
+                            confirmButtonText: 'Ya, tunda',
+                            cancelButtonText: 'Batal',
+                            customClass: {
+                                popup: 'rounded-2xl',
+                                confirmButton: 'rounded-xl px-4 py-2 font-semibold',
+                                cancelButton: 'rounded-xl px-4 py-2 font-semibold',
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                deferGraduationForm.submit();
+                            }
+                        });
+                    });
+
+                    bulkCancelDeferredGraduationButton?.addEventListener('click', function () {
+                        const selected = checkboxes().filter(cb => cb.checked).map(cb => cb.value);
+                        const hasDeferredSelected = checkboxes().some(cb => cb.checked && cb.dataset.status === 'tunda_lulus');
+
+                        if (!selected.length || !hasDeferredSelected) {
+                            return;
+                        }
+
+                        cancelDeferredGraduationIdsContainer.innerHTML = '';
+                        selected.forEach(id => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'ids[]';
+                            input.value = id;
+                            cancelDeferredGraduationIdsContainer.appendChild(input);
+                        });
+
+                        if (typeof Swal === 'undefined') {
+                            cancelDeferredGraduationForm.submit();
+                            return;
+                        }
+
+                        Swal.fire({
+                            title: 'Batalkan tunda kelulusan?',
+                            text: `${selected.length} siswa dipilih. Hanya siswa dengan status "Tunda Lulus" yang akan diubah menjadi "Lulus".`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#0891b2',
+                            cancelButtonColor: '#6b7280',
+                            confirmButtonText: 'Ya, batalkan',
+                            cancelButtonText: 'Batal',
+                            customClass: {
+                                popup: 'rounded-2xl',
+                                confirmButton: 'rounded-xl px-4 py-2 font-semibold',
+                                cancelButton: 'rounded-xl px-4 py-2 font-semibold',
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                cancelDeferredGraduationForm.submit();
                             }
                         });
                     });

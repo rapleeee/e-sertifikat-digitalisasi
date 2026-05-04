@@ -159,6 +159,7 @@
                             >
                                 <option value="aktif" {{ old('status', 'aktif') === 'aktif' ? 'selected' : '' }}>Aktif</option>
                                 <option value="lulus" {{ old('status') === 'lulus' ? 'selected' : '' }}>Lulus</option>
+                                <option value="tunda_lulus" {{ old('status') === 'tunda_lulus' ? 'selected' : '' }}>Tunda Lulus</option>
                                 <option value="alumni" {{ old('status') === 'alumni' ? 'selected' : '' }}>Alumni</option>
                             </select>
                             @error('status')

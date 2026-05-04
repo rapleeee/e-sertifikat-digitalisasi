@@ -384,4 +384,100 @@ class SiswaController extends Controller
             ->route('siswa.index')
             ->with('success', $message);
     }
+
+    public function bulkDeferGraduation(Request $request): RedirectResponse
+    {
+        $ids = (array) $request->input('ids', []);
+
+        if (empty($ids)) {
+            return redirect()
+                ->route('siswa.index')
+                ->with('error', 'Pilih minimal satu siswa kelas XII untuk ditunda kelulusannya.');
+        }
+
+        $updatedCount = 0;
+        $skippedCount = 0;
+
+        DB::transaction(function () use ($ids, &$updatedCount, &$skippedCount) {
+            $siswas = Siswa::whereIn('id', $ids)->get();
+
+            foreach ($siswas as $siswa) {
+                if (! str_contains(strtoupper((string) $siswa->kelas), 'XII')) {
+                    $skippedCount++;
+
+                    continue;
+                }
+
+                $siswa->update([
+                    'status' => 'tunda_lulus',
+                ]);
+
+                $updatedCount++;
+            }
+        });
+
+        if ($updatedCount === 0) {
+            return redirect()
+                ->route('siswa.index')
+                ->with('error', 'Tidak ada siswa kelas XII yang berhasil ditunda kelulusannya.');
+        }
+
+        $message = "Kelulusan {$updatedCount} siswa kelas XII berhasil ditunda.";
+
+        if ($skippedCount > 0) {
+            $message .= " {$skippedCount} siswa dilewati karena bukan kelas XII.";
+        }
+
+        return redirect()
+            ->route('siswa.index')
+            ->with('success', $message);
+    }
+
+    public function bulkCancelDeferredGraduation(Request $request): RedirectResponse
+    {
+        $ids = (array) $request->input('ids', []);
+
+        if (empty($ids)) {
+            return redirect()
+                ->route('siswa.index')
+                ->with('error', 'Pilih minimal satu siswa untuk membatalkan tunda kelulusan.');
+        }
+
+        $updatedCount = 0;
+        $skippedCount = 0;
+
+        DB::transaction(function () use ($ids, &$updatedCount, &$skippedCount) {
+            $siswas = Siswa::whereIn('id', $ids)->get();
+
+            foreach ($siswas as $siswa) {
+                if ($siswa->status !== 'tunda_lulus') {
+                    $skippedCount++;
+
+                    continue;
+                }
+
+                $siswa->update([
+                    'status' => 'lulus',
+                ]);
+
+                $updatedCount++;
+            }
+        });
+
+        if ($updatedCount === 0) {
+            return redirect()
+                ->route('siswa.index')
+                ->with('error', 'Tidak ada siswa dengan status tunda lulus yang berhasil dibatalkan.');
+        }
+
+        $message = "Pembatalan tunda kelulusan berhasil untuk {$updatedCount} siswa.";
+
+        if ($skippedCount > 0) {
+            $message .= " {$skippedCount} siswa dilewati karena statusnya bukan tunda lulus.";
+        }
+
+        return redirect()
+            ->route('siswa.index')
+            ->with('success', $message);
+    }
 }

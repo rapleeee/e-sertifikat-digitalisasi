@@ -45,7 +45,7 @@
                 </div>
             @endif
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
                     <p class="text-sm text-slate-600 font-medium">Waktu Buka</p>
                     <p class="text-xl font-bold text-slate-900 mt-2">{{ $announcementAt->translatedFormat('d F Y') }}</p>
@@ -58,6 +58,10 @@
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
                     <p class="text-sm text-slate-600 font-medium">Sudah Diluluskan</p>
                     <p class="text-3xl font-bold text-blue-600 mt-2">{{ $totalLulus }}</p>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                    <p class="text-sm text-slate-600 font-medium">Kelulusan Ditunda</p>
+                    <p class="text-3xl font-bold text-amber-600 mt-2">{{ $totalTundaLulus }}</p>
                 </div>
             </div>
 

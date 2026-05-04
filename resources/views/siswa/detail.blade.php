@@ -50,7 +50,9 @@
                             </div>
                             <div>
                                 <span class="font-semibold">Status:</span>
-                                <span class="ml-1 capitalize">{{ $siswa->status ?? '-' }}</span>
+                                <span class="ml-1">
+                                    {{ ($siswa->status ?? null) === 'tunda_lulus' ? 'Tunda Lulus' : ucfirst($siswa->status ?? '-') }}
+                                </span>
                             </div>
                         </div>
                     </div>
