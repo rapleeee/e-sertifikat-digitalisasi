@@ -6,6 +6,43 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Cek Eligible PTN - Certisat</title>
+    <meta name="description" content="Cek status eligible PTN dan hasil TKA siswa SMK Informatika Pesat dengan cepat menggunakan NIS resmi.">
+    <meta name="keywords" content="eligible PTN, hasil TKA, SMK Informatika Pesat, cek NIS">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="{{ route('pencarian.eligible') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/Logo.png') }}">
+
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="SMK Informatika Pesat">
+    <meta property="og:title" content="Cek Eligible PTN & Hasil TKA | SMK Informatika Pesat">
+    <meta property="og:description" content="Layanan resmi untuk melihat status eligible PTN dan hasil TKA siswa berdasarkan NIS.">
+    <meta property="og:url" content="{{ route('pencarian.eligible') }}">
+    <meta property="og:image" content="{{ asset('images/og-eligible.jpg') }}">
+    <meta property="og:image:alt" content="Halaman cek eligible PTN dan hasil TKA SMK Informatika Pesat">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Cek Eligible PTN & Hasil TKA | SMK Informatika Pesat">
+    <meta name="twitter:description" content="Layanan resmi untuk melihat status eligible PTN dan hasil TKA siswa berdasarkan NIS.">
+    <meta name="twitter:image" content="{{ asset('images/og-eligible.jpg') }}">
+    <meta name="twitter:image:alt" content="Halaman cek eligible PTN dan hasil TKA SMK Informatika Pesat">
+
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'WebPage',
+            'name' => 'Cek Eligible PTN dan Hasil TKA',
+            'url' => route('pencarian.eligible'),
+            'description' => 'Cek status eligible PTN dan hasil TKA siswa SMK Informatika Pesat berbasis NIS.',
+            'isPartOf' => [
+                '@type' => 'WebSite',
+                'name' => 'SMK Informatika Pesat',
+                'url' => url('/'),
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web/+esm"></script>

@@ -5,7 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', config('app.name', 'Certisat'))</title>
+    @php
+        $seoTitle = trim($__env->yieldContent('title', config('app.name', 'Certisat')));
+        $seoDescription = trim($__env->yieldContent('meta_description', 'Platform resmi SMK Informatika Pesat untuk cek eligible PTN, hasil TKA, dan kelulusan siswa secara cepat dan terpercaya.'));
+        $seoKeywords = trim($__env->yieldContent('meta_keywords', 'SMK Informatika Pesat, eligible PTN, hasil TKA, cek kelulusan, sertifikat siswa'));
+        $seoRobots = trim($__env->yieldContent('meta_robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'));
+        $canonicalUrl = trim($__env->yieldContent('canonical_url', url()->current()));
+        $shareImage = trim($__env->yieldContent('og_image', asset('images/og-home.jpg')));
+        $shareType = trim($__env->yieldContent('og_type', 'website'));
+    @endphp
+
+    <title>{{ $seoTitle }}</title>
+    <meta name="description" content="{{ $seoDescription }}">
+    <meta name="keywords" content="{{ $seoKeywords }}">
+    <meta name="robots" content="{{ $seoRobots }}">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="author" content="SMK Informatika Pesat">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="canonical" href="{{ $canonicalUrl }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/Logo.png') }}">
+
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:type" content="{{ $shareType }}">
+    <meta property="og:site_name" content="SMK Informatika Pesat">
+    <meta property="og:title" content="{{ trim($__env->yieldContent('og_title', $seoTitle)) }}">
+    <meta property="og:description" content="{{ trim($__env->yieldContent('og_description', $seoDescription)) }}">
+    <meta property="og:url" content="{{ trim($__env->yieldContent('og_url', $canonicalUrl)) }}">
+    <meta property="og:image" content="{{ $shareImage }}">
+    <meta property="og:image:alt" content="{{ trim($__env->yieldContent('og_image_alt', 'Portal layanan siswa SMK Informatika Pesat')) }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ trim($__env->yieldContent('twitter_title', $seoTitle)) }}">
+    <meta name="twitter:description" content="{{ trim($__env->yieldContent('twitter_description', $seoDescription)) }}">
+    <meta name="twitter:image" content="{{ trim($__env->yieldContent('twitter_image', $shareImage)) }}">
+    <meta name="twitter:image:alt" content="{{ trim($__env->yieldContent('twitter_image_alt', 'Portal layanan siswa SMK Informatika Pesat')) }}">
+
+    @hasSection('structured_data')
+        @yield('structured_data')
+    @else
+        <script type="application/ld+json">
+            {!! json_encode([
+                '@context' => 'https://schema.org',
+                '@type' => 'WebSite',
+                'name' => 'SMK Informatika Pesat',
+                'url' => config('app.url'),
+                'potentialAction' => [
+                    '@type' => 'SearchAction',
+                    'target' => route('pencarian.eligible') . '?q={search_term_string}',
+                    'query-input' => 'required name=search_term_string',
+                ],
+                'publisher' => [
+                    '@type' => 'EducationalOrganization',
+                    'name' => 'SMK Informatika Pesat',
+                    'url' => 'https://smkpesat.sch.id/',
+                    'logo' => asset('images/Logo.png'),
+                ],
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+        </script>
+    @endif
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -14,6 +14,50 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/sitemap.xml', function () {
+    $lastmod = now()->toAtomString();
+    $urls = [
+        ['loc' => url('/'), 'changefreq' => 'daily', 'priority' => '1.0'],
+        ['loc' => route('pencarian.eligible'), 'changefreq' => 'daily', 'priority' => '0.9'],
+        ['loc' => route('kelulusan.index'), 'changefreq' => 'daily', 'priority' => '0.9'],
+        ['loc' => route('pencarian.sertifikat'), 'changefreq' => 'weekly', 'priority' => '0.8'],
+        ['loc' => route('laporan.public.form'), 'changefreq' => 'weekly', 'priority' => '0.6'],
+        ['loc' => route('tim.profil'), 'changefreq' => 'monthly', 'priority' => '0.5'],
+    ];
+
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
+
+    foreach ($urls as $item) {
+        $loc = htmlspecialchars($item['loc'], ENT_QUOTES, 'UTF-8');
+        $changefreq = htmlspecialchars($item['changefreq'], ENT_QUOTES, 'UTF-8');
+        $priority = htmlspecialchars($item['priority'], ENT_QUOTES, 'UTF-8');
+
+        $xml .= '  <url>' . PHP_EOL;
+        $xml .= "    <loc>{$loc}</loc>" . PHP_EOL;
+        $xml .= "    <lastmod>{$lastmod}</lastmod>" . PHP_EOL;
+        $xml .= "    <changefreq>{$changefreq}</changefreq>" . PHP_EOL;
+        $xml .= "    <priority>{$priority}</priority>" . PHP_EOL;
+        $xml .= '  </url>' . PHP_EOL;
+    }
+
+    $xml .= '</urlset>';
+
+    return response($xml, 200)->header('Content-Type', 'application/xml; charset=UTF-8');
+})->name('sitemap');
+
+Route::get('/robots.txt', function () {
+    $host = parse_url(config('app.url'), PHP_URL_HOST) ?: request()->getHost();
+    $content = "User-agent: *\n";
+    $content .= "Allow: /\n";
+    $content .= "Disallow: /dashboard\n";
+    $content .= "Disallow: /api/\n\n";
+    $content .= "Host: {$host}\n";
+    $content .= 'Sitemap: ' . url('/sitemap.xml') . "\n";
+
+    return response($content, 200)->header('Content-Type', 'text/plain; charset=UTF-8');
+})->name('robots');
+
 Route::view('/tim-pengembang', 'tim')->name('tim.profil');
 
 Route::get('/pencarian-sertifikat', function () {

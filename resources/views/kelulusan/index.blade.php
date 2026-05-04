@@ -1,6 +1,13 @@
 @extends('layouts.glass')
 
 @section('title', 'Cek Kelulusan - ' . config('app.name', 'Certisat'))
+@section('meta_description', 'Cek pengumuman kelulusan siswa SMK Informatika Pesat secara online berdasarkan NIS atau nama lengkap pada jadwal resmi sekolah.')
+@section('meta_keywords', 'cek kelulusan SMK Informatika Pesat, pengumuman kelulusan, hasil kelulusan siswa')
+@section('canonical_url', route('kelulusan.index'))
+@section('og_title', 'Cek Kelulusan Siswa | SMK Informatika Pesat')
+@section('og_description', 'Lihat pengumuman kelulusan resmi SMK Informatika Pesat dengan cepat, aman, dan terpercaya.')
+@section('og_url', route('kelulusan.index'))
+@section('og_image', asset('images/og-kelulusan.jpg'))
 
 @section('main-class', 'px-4 pb-24 md:pb-8 pt-8 md:pt-24')
 

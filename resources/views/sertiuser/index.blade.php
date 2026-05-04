@@ -6,6 +6,43 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Cari Sertifikat - Certisat</title>
+    <meta name="description" content="Cari dan verifikasi sertifikat siswa SMK Informatika Pesat berdasarkan nama atau NIS secara online.">
+    <meta name="keywords" content="cari sertifikat siswa, verifikasi sertifikat, SMK Informatika Pesat">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="{{ route('pencarian.sertifikat') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/Logo.png') }}">
+
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="SMK Informatika Pesat">
+    <meta property="og:title" content="Cari Sertifikat Siswa | SMK Informatika Pesat">
+    <meta property="og:description" content="Temukan data sertifikat siswa resmi SMK Informatika Pesat dengan pencarian nama atau NIS.">
+    <meta property="og:url" content="{{ route('pencarian.sertifikat') }}">
+    <meta property="og:image" content="{{ asset('images/og-sertifikat.jpg') }}">
+    <meta property="og:image:alt" content="Halaman pencarian sertifikat siswa SMK Informatika Pesat">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Cari Sertifikat Siswa | SMK Informatika Pesat">
+    <meta name="twitter:description" content="Temukan data sertifikat siswa resmi SMK Informatika Pesat dengan pencarian nama atau NIS.">
+    <meta name="twitter:image" content="{{ asset('images/og-sertifikat.jpg') }}">
+    <meta name="twitter:image:alt" content="Halaman pencarian sertifikat siswa SMK Informatika Pesat">
+
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'WebPage',
+            'name' => 'Cari Sertifikat Siswa',
+            'url' => route('pencarian.sertifikat'),
+            'description' => 'Pencarian sertifikat siswa SMK Informatika Pesat berdasarkan nama atau NIS.',
+            'isPartOf' => [
+                '@type' => 'WebSite',
+                'name' => 'SMK Informatika Pesat',
+                'url' => url('/'),
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>

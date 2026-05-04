@@ -1,6 +1,87 @@
 @extends('layouts.glass')
 
 @section('title', config('app.name', 'Certisat') . ' - Cek Eligible PTN')
+@section('meta_description', 'Portal resmi SMK Informatika Pesat untuk cek eligible PTN, hasil TKA, dan informasi kelulusan siswa secara cepat, aman, dan akurat.')
+@section('meta_keywords', 'SMK Informatika Pesat, cek eligible PTN, hasil TKA, kelulusan siswa, portal siswa')
+@section('canonical_url', url('/'))
+@section('og_title', 'Portal Eligible PTN & Kelulusan | SMK Informatika Pesat')
+@section('og_description', 'Akses layanan resmi untuk cek eligible PTN, hasil TKA, dan pengumuman kelulusan siswa SMK Informatika Pesat.')
+@section('og_url', url('/'))
+@section('og_image', asset('images/og-home.jpg'))
+@section('og_image_alt', 'Beranda portal eligible PTN dan kelulusan SMK Informatika Pesat')
+
+@section('structured_data')
+    <script type="application/ld+json">
+        {!! json_encode([
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => 'WebPage',
+                    '@id' => url('/') . '#webpage',
+                    'url' => url('/'),
+                    'name' => 'Portal Eligible PTN dan Kelulusan',
+                    'description' => 'Portal resmi SMK Informatika Pesat untuk cek eligible PTN, hasil TKA, dan kelulusan siswa.',
+                    'isPartOf' => [
+                        '@id' => url('/') . '#website',
+                    ],
+                    'inLanguage' => 'id-ID',
+                    'breadcrumb' => [
+                        '@id' => url('/') . '#breadcrumb',
+                    ],
+                ],
+                [
+                    '@type' => 'WebSite',
+                    '@id' => url('/') . '#website',
+                    'url' => url('/'),
+                    'name' => 'SMK Informatika Pesat',
+                    'inLanguage' => 'id-ID',
+                ],
+                [
+                    '@type' => 'BreadcrumbList',
+                    '@id' => url('/') . '#breadcrumb',
+                    'itemListElement' => [
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 1,
+                            'name' => 'Beranda',
+                            'item' => url('/'),
+                        ],
+                    ],
+                ],
+                [
+                    '@type' => 'FAQPage',
+                    '@id' => url('/') . '#faq',
+                    'mainEntity' => [
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Bagaimana cara cek eligible PTN?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'Buka halaman Cek Eligible PTN, masukkan NIS siswa, lalu sistem akan menampilkan status eligible dan hasil TKA secara otomatis.',
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Kapan pengumuman kelulusan bisa dicek?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'Pengumuman dapat diakses sesuai jadwal resmi sekolah yang tampil pada halaman Cek Kelulusan.',
+                            ],
+                        ],
+                        [
+                            '@type' => 'Question',
+                            'name' => 'Jika data tidak sesuai harus ke mana?',
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text' => 'Gunakan formulir Laporan untuk mengirim koreksi data atau kendala kepada admin sekolah.',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+    </script>
+@endsection
 
 @section('main-class', 'px-4 pb-24 md:pb-0 pt-6 md:pt-24')
 
@@ -47,7 +128,7 @@
                     <div class="nb-card rounded-2xl p-3 rotate-2">
                         <img
                             src="{{ asset('images/Desian-Web.jpg') }}"
-                            alt="Ilustrasi"
+                            alt="Tampilan portal cek eligible PTN dan kelulusan siswa SMK Informatika Pesat"
                             class="w-full h-auto object-cover rounded-xl"
                         >
                     </div>
@@ -120,6 +201,41 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- FAQ + Internal Links -->
+    <section class="pb-2">
+        <div class="text-center space-y-3 mb-8">
+            <div class="inline-flex items-center gap-2 bg-blue-300 nb-border-2 nb-shadow-sm rounded-full px-4 py-1.5 text-xs font-bold text-[#1a1a2e] tracking-wide uppercase">
+                FAQ
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-bold text-[#1a1a2e] tracking-tight">Pertanyaan yang Sering Ditanyakan</h2>
+            <p class="text-gray-500 max-w-2xl mx-auto text-sm sm:text-base">Informasi cepat seputar layanan eligible PTN, kelulusan, dan pelaporan data.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <article class="nb-card rounded-2xl p-6">
+                <h3 class="font-bold text-[#1a1a2e] text-base">Bagaimana cara cek Eligible PTN?</h3>
+                <p class="mt-2 text-sm text-gray-500 leading-relaxed">
+                    Masuk ke halaman pencarian eligible, isi NIS, lalu klik cari.
+                    <a href="{{ route('pencarian.eligible') }}" class="font-bold text-blue-600 underline">Buka Cek Eligible PTN</a>.
+                </p>
+            </article>
+            <article class="nb-card rounded-2xl p-6">
+                <h3 class="font-bold text-[#1a1a2e] text-base">Kapan hasil kelulusan diumumkan?</h3>
+                <p class="mt-2 text-sm text-gray-500 leading-relaxed">
+                    Jadwal rilis mengikuti waktu resmi sekolah dan tampil di halaman countdown.
+                    <a href="{{ route('kelulusan.index') }}" class="font-bold text-blue-600 underline">Lihat Halaman Kelulusan</a>.
+                </p>
+            </article>
+            <article class="nb-card rounded-2xl p-6">
+                <h3 class="font-bold text-[#1a1a2e] text-base">Bagaimana jika data perlu dikoreksi?</h3>
+                <p class="mt-2 text-sm text-gray-500 leading-relaxed">
+                    Kirim laporan resmi agar admin dapat menindaklanjuti validasi data.
+                    <a href="{{ route('laporan.public.form') }}" class="font-bold text-blue-600 underline">Kirim Laporan</a>.
+                </p>
+            </article>
         </div>
     </section>
 

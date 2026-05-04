@@ -1,6 +1,13 @@
 @extends('layouts.glass')
 
 @section('title', 'Laporan ke Admin - Certisat')
+@section('meta_description', 'Sampaikan laporan, koreksi data, atau saran perbaikan kepada admin SMK Informatika Pesat melalui formulir resmi ini.')
+@section('meta_keywords', 'laporan admin SMK, koreksi data siswa, saran sistem sekolah')
+@section('canonical_url', route('laporan.public.form'))
+@section('og_title', 'Kirim Laporan ke Admin | SMK Informatika Pesat')
+@section('og_description', 'Formulir resmi untuk melaporkan kendala, koreksi data, dan saran terkait layanan siswa SMK Informatika Pesat.')
+@section('og_url', route('laporan.public.form'))
+@section('og_image', asset('images/og-laporan.jpg'))
 
 @section('main-class', 'px-4 pb-24 md:pb-8 pt-8 md:pt-24')
 
