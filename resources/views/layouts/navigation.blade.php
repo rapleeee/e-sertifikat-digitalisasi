@@ -133,6 +133,32 @@
                             </li>
                         </ul>
                     </li>
+                    <!-- Section: Kelulusan -->
+                    <li class="pt-3">
+                        <p x-show="open" class="px-3 mb-1 text-[11px] font-semibold text-gray-400 tracking-wide uppercase">
+                            Kelulusan
+                        </p>
+                        <ul class="space-y-1">
+                            <li>
+                                <a href="{{ route('kelulusan.settings') }}"
+                                   class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                                    <div class="w-8 h-8 flex items-center justify-center text-gray-500">
+                                        <ion-icon name="time-outline" class="w-5 h-5"></ion-icon>
+                                    </div>
+                                    <span x-show="open" x-transition>Pengaturan Kelulusan</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('kelulusan.index') }}" target="_blank"
+                                   class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                                    <div class="w-8 h-8 flex items-center justify-center text-gray-500">
+                                        <ion-icon name="open-outline" class="w-5 h-5"></ion-icon>
+                                    </div>
+                                    <span x-show="open" x-transition>Halaman Cek Kelulusan</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                 @endif
 
                 @if (in_array(auth()->user()->role, ['super_admin', 'admin']))

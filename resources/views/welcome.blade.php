@@ -33,6 +33,12 @@
                         </svg>
                         Cek Eligible PTN & TKA
                     </a>
+                    <a href="{{ route('kelulusan.index') }}" class="nb-btn inline-flex items-center gap-2 px-7 py-3.5 rounded-xl bg-yellow-300 text-[#1a1a2e] text-sm font-bold tracking-wide">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v5l3 3m6-4a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Cek Kelulusan
+                    </a>
                 </div>
             </div>
 
@@ -100,8 +106,8 @@
                 <div class="flex items-start gap-4">
                     <div class="flex-shrink-0 flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-300 nb-border-2 text-[#1a1a2e] font-bold text-sm">02</div>
                     <div class="flex-1">
-                        <h3 class="font-bold text-[#1a1a2e] text-base">Lihat Hasil TKA</h3>
-                        <p class="mt-1.5 text-sm text-gray-500 leading-relaxed">Lihat hasil Tes Kemampuan Akademik yang telah ditetapkan oleh sekolah untuk proses seleksi PTN.</p>
+                        <h3 class="font-bold text-[#1a1a2e] text-base">Cek Kelulusan</h3>
+                        <p class="mt-1.5 text-sm text-gray-500 leading-relaxed">Buka menu Cek Kelulusan saat countdown selesai, lalu cari data menggunakan NIS atau nama lengkap.</p>
                     </div>
                 </div>
             </div>
@@ -129,6 +135,9 @@
             <div class="flex flex-wrap justify-center gap-4 mt-6">
                 <a href="{{ route('pencarian.eligible') }}" class="nb-btn inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-white text-[#1a1a2e] text-sm font-bold">
                     Cek Eligible PTN & TKA →
+                </a>
+                <a href="{{ route('kelulusan.index') }}" class="nb-btn inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-blue-500 text-white text-sm font-bold">
+                    Cek Kelulusan →
                 </a>
             </div>
         </div>

@@ -1,12 +1,13 @@
 <?php
 
+use App\Http\Controllers\BackupController;
 use App\Http\Controllers\EligibilitasController;
+use App\Http\Controllers\KelulusanController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\SertifikatController;
 use App\Http\Controllers\SiswaController;
-use App\Http\Controllers\BackupController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -26,6 +27,8 @@ Route::get('/pencarian-eligible', function () {
 Route::get('/pencarian-eligible/test', function () {
     return view('elegibleuser.test');
 })->name('pencarian.eligible.test');
+
+Route::get('/cek-kelulusan', [KelulusanController::class, 'index'])->name('kelulusan.index');
 
 Route::get('/laporan', [LaporanController::class, 'publicForm'])->name('laporan.public.form');
 Route::post('/laporan', [LaporanController::class, 'publicStore'])->name('laporan.public.store');
@@ -61,6 +64,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('', [SiswaController::class, 'store'])->name('store');
             Route::delete('bulk-destroy', [SiswaController::class, 'bulkDestroy'])->name('bulk-destroy');
             Route::post('bulk-promote', [SiswaController::class, 'bulkPromote'])->name('bulk-promote');
+            Route::post('bulk-graduate', [SiswaController::class, 'bulkGraduate'])->name('bulk-graduate');
             Route::get('{siswa}', [SiswaController::class, 'show'])->name('show');
             Route::get('{siswa}/edit', [SiswaController::class, 'edit'])->name('edit');
             Route::put('{siswa}', [SiswaController::class, 'update'])->name('update');
@@ -76,6 +80,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('{siswa}/edit', [EligibilitasController::class, 'edit'])->name('edit');
             Route::put('{siswa}', [EligibilitasController::class, 'update'])->name('update');
         });
+
+        Route::get('/pengaturan-kelulusan', [KelulusanController::class, 'settings'])->name('kelulusan.settings');
+        Route::put('/pengaturan-kelulusan', [KelulusanController::class, 'updateSettings'])->name('kelulusan.settings.update');
 
         Route::get('/sertifikat/import', [SiswaController::class, 'importForm'])->name('sertifikat.import.form');
         Route::post('/sertifikat/import', [SiswaController::class, 'importExcel'])->name('sertifikat.import.excel');
@@ -126,6 +133,11 @@ Route::get(
 )->name('eligible.search.api')->middleware('throttle:30,1');
 
 Route::get(
+    '/api/kelulusan/search',
+    [KelulusanController::class, 'search']
+)->name('kelulusan.search.api')->middleware('throttle:30,1');
+
+Route::get(
     '/api/sertifikat/{sertifikat}',
     [SertifikatController::class, 'publicShow']
 )->name('sertifikat.public.show')->middleware('throttle:60,1');
@@ -136,5 +148,4 @@ Route::post(
     [SertifikatController::class, 'verify']
 )->name('sertifikat.verify')->middleware('throttle:60,1');
 
-
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

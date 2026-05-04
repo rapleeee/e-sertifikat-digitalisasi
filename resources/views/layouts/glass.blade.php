@@ -107,6 +107,10 @@
                            class="px-4 py-2 text-sm font-bold rounded-xl transition-all {{ $currentRoute === 'pencarian.eligible' ? 'bg-yellow-300 nb-border-2 nb-shadow-sm' : 'text-[#1a1a2e] hover:bg-yellow-100' }}">
                             Eligible PTN
                         </a>
+                        <a href="{{ route('kelulusan.index') }}"
+                           class="px-4 py-2 text-sm font-bold rounded-xl transition-all {{ $currentRoute === 'kelulusan.index' ? 'bg-yellow-300 nb-border-2 nb-shadow-sm' : 'text-[#1a1a2e] hover:bg-yellow-100' }}">
+                            Kelulusan
+                        </a>
                         <a href="{{ route('laporan.public.form') }}"
                            class="px-4 py-2 text-sm font-bold rounded-xl transition-all {{ $currentRoute === 'laporan.public.form' ? 'bg-yellow-300 nb-border-2 nb-shadow-sm' : 'text-[#1a1a2e] hover:bg-yellow-100' }}">
                             Laporan
@@ -143,6 +147,13 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span class="text-[10px] font-bold text-[#1a1a2e]">Eligible</span>
+                    <div class="nav-indicator w-1 h-1 rounded-full bg-[#1a1a2e]"></div>
+                </a>
+                <a href="{{ route('kelulusan.index') }}" class="bottom-nav-item {{ $currentRoute === 'kelulusan.index' ? 'active' : '' }} flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-all {{ $currentRoute === 'kelulusan.index' ? 'bg-yellow-300' : '' }}">
+                    <svg class="w-5 h-5 text-[#1a1a2e]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v5l3 3m6-4a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="text-[10px] font-bold text-[#1a1a2e]">Lulus</span>
                     <div class="nav-indicator w-1 h-1 rounded-full bg-[#1a1a2e]"></div>
                 </a>
                 <a href="{{ route('laporan.public.form') }}" class="bottom-nav-item {{ $currentRoute === 'laporan.public.form' ? 'active' : '' }} flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-all {{ $currentRoute === 'laporan.public.form' ? 'bg-yellow-300' : '' }}">

@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSiswaRequest;
 use App\Http\Requests\UpdateSiswaRequest;
+use App\Imports\SertifikatImport;
 use App\Models\Siswa;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
@@ -161,18 +163,17 @@ class SiswaController extends Controller
         return view('sertifikat.import');
     }
 
-
     public function importExcel(Request $request)
     {
         $request->validate(['file' => 'required|mimes:xlsx,xls']);
 
         try {
-            $import = new \App\Imports\SertifikatImport;
+            $import = new SertifikatImport;
             Excel::import($import, $request->file('file'));
 
             $importedData = $import->data ?? collect();
 
-            if ($importedData instanceof \Illuminate\Support\Collection) {
+            if ($importedData instanceof Collection) {
                 $importedData = $importedData->toArray();
             }
 
@@ -190,7 +191,7 @@ class SiswaController extends Controller
 
             return redirect()->route('sertifikat.preview')->with('success', 'File Excel berhasil diunggah. Silakan tinjau data sebelum diimpor.');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengimpor: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengimpor: '.$e->getMessage());
         }
     }
 
@@ -219,7 +220,7 @@ class SiswaController extends Controller
                 $kelas = isset($data['kelas']) ? trim((string) $data['kelas']) : null;
                 $jurusan = isset($data['jurusan']) ? trim((string) $data['jurusan']) : null;
 
-                if (!$nis || !$nama) {
+                if (! $nis || ! $nama) {
                     continue;
                 }
 
@@ -254,11 +255,11 @@ class SiswaController extends Controller
     public function search(Request $request)
     {
         $query = $request->get('search');
-        
+
         $siswas = Siswa::where('nama', 'LIKE', "%{$query}%")
-                      ->orWhere('nis', 'LIKE', "%{$query}%")
-                      ->orderBy('nama')
-                      ->paginate(15);
+            ->orWhere('nis', 'LIKE', "%{$query}%")
+            ->orderBy('nama')
+            ->paginate(15);
 
         return view('siswa.index', compact('siswas'))->with('search', $query);
     }
@@ -336,4 +337,51 @@ class SiswaController extends Controller
             ->with('success', "Kelas berhasil diubah ke {$kelasBaru} untuk {$updatedCount} siswa.");
     }
 
+    public function bulkGraduate(Request $request): RedirectResponse
+    {
+        $ids = (array) $request->input('ids', []);
+
+        if (empty($ids)) {
+            return redirect()
+                ->route('siswa.index')
+                ->with('error', 'Pilih minimal satu siswa kelas XII untuk diluluskan.');
+        }
+
+        $updatedCount = 0;
+        $skippedCount = 0;
+
+        DB::transaction(function () use ($ids, &$updatedCount, &$skippedCount) {
+            $siswas = Siswa::whereIn('id', $ids)->get();
+
+            foreach ($siswas as $siswa) {
+                if (! str_contains(strtoupper((string) $siswa->kelas), 'XII')) {
+                    $skippedCount++;
+
+                    continue;
+                }
+
+                $siswa->update([
+                    'status' => 'lulus',
+                ]);
+
+                $updatedCount++;
+            }
+        });
+
+        if ($updatedCount === 0) {
+            return redirect()
+                ->route('siswa.index')
+                ->with('error', 'Tidak ada siswa kelas XII yang berhasil diluluskan.');
+        }
+
+        $message = "{$updatedCount} siswa kelas XII berhasil diluluskan.";
+
+        if ($skippedCount > 0) {
+            $message .= " {$skippedCount} siswa dilewati karena bukan kelas XII.";
+        }
+
+        return redirect()
+            ->route('siswa.index')
+            ->with('success', $message);
+    }
 }

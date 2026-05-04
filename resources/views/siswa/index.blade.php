@@ -180,6 +180,14 @@
                             >
                                 Naik Kelas
                             </button>
+                            <button
+                                type="button"
+                                id="bulk-graduate-button"
+                                class="inline-flex items-center px-3 py-1.5 rounded-lg border border-blue-200 text-blue-700 font-semibold hover:bg-blue-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                                disabled
+                            >
+                                Luluskan Kelas XII
+                            </button>
                         </div>
                         <button
                             type="button"
@@ -202,6 +210,7 @@
                                 <th class="px-6 py-4 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Nama</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">NIS</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Kelas / Jurusan</th>
+                                <th class="px-6 py-4 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Status</th>
                                 <th class="px-6 py-4 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Total Sertifikat</th>
                                 <th class="px-6 py-4 text-center text-xs font-semibold tracking-wider text-slate-500 uppercase">Aksi</th>
                             </tr>
@@ -226,6 +235,19 @@
                                             <p>{{ $siswa->kelas ?? '-' }}</p>
                                             <p class="text-xs text-slate-500">{{ $siswa->jurusan ?? '' }}</p>
                                         </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        @php
+                                            $status = $siswa->status ?? 'aktif';
+                                            $statusClass = match ($status) {
+                                                'lulus' => 'bg-blue-100 text-blue-700',
+                                                'alumni' => 'bg-violet-100 text-violet-700',
+                                                default => 'bg-emerald-100 text-emerald-700',
+                                            };
+                                        @endphp
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full {{ $statusClass }} text-xs font-semibold shadow-sm">
+                                            {{ ucfirst($status) }}
+                                        </span>
                                     </td>
                                     <td class="px-6 py-4">
                                         <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full {{ $siswa->sertifikats_count ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600' }} text-sm font-medium shadow-sm">
@@ -314,7 +336,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="px-6 py-16 text-center text-slate-500">
+                                    <td colspan="7" class="px-6 py-16 text-center text-slate-500">
                                         <div class="flex flex-col items-center gap-3">
                                             <svg class="w-12 h-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v4a1 1 0 001 1h3m10 0h3a1 1 0 001-1V7m-4 0V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2m12 0H5"/>
@@ -351,24 +373,35 @@
                 <div id="bulk-promote-ids-container"></div>
             </form>
 
+            <form id="bulk-graduate-form" method="POST" action="{{ route('siswa.bulk-graduate') }}">
+                @csrf
+                <div id="bulk-graduate-ids-container"></div>
+            </form>
+
             <script>
                 document.addEventListener('DOMContentLoaded', function () {
                     const selectAll = document.getElementById('select-all-siswa');
                     const checkboxes = () => Array.from(document.querySelectorAll('.siswa-checkbox'));
                     const bulkDeleteButton = document.getElementById('bulk-delete-button');
                     const bulkPromoteButton = document.getElementById('bulk-promote-button');
+                    const bulkGraduateButton = document.getElementById('bulk-graduate-button');
                     const bulkForm = document.getElementById('bulk-delete-form');
                     const idsContainer = document.getElementById('bulk-delete-ids-container');
                     const promoteForm = document.getElementById('bulk-promote-form');
                     const promoteIdsContainer = document.getElementById('bulk-promote-ids-container');
                     const kelasSelect = document.getElementById('bulk-kelas-select');
                     const kelasBaruInput = document.getElementById('bulk-kelas-baru');
+                    const graduateForm = document.getElementById('bulk-graduate-form');
+                    const graduateIdsContainer = document.getElementById('bulk-graduate-ids-container');
 
                     function updateBulkButtonState() {
                         const anyChecked = checkboxes().some(cb => cb.checked);
                         bulkDeleteButton.disabled = !anyChecked;
                         if (bulkPromoteButton) {
                             bulkPromoteButton.disabled = !anyChecked || !kelasSelect?.value;
+                        }
+                        if (bulkGraduateButton) {
+                            bulkGraduateButton.disabled = !anyChecked;
                         }
                     }
 
@@ -476,6 +509,48 @@
                         }).then((result) => {
                             if (result.isConfirmed) {
                                 promoteForm.submit();
+                            }
+                        });
+                    });
+
+                    bulkGraduateButton?.addEventListener('click', function () {
+                        const selected = checkboxes().filter(cb => cb.checked).map(cb => cb.value);
+
+                        if (!selected.length) {
+                            return;
+                        }
+
+                        graduateIdsContainer.innerHTML = '';
+                        selected.forEach(id => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'ids[]';
+                            input.value = id;
+                            graduateIdsContainer.appendChild(input);
+                        });
+
+                        if (typeof Swal === 'undefined') {
+                            graduateForm.submit();
+                            return;
+                        }
+
+                        Swal.fire({
+                            title: 'Luluskan siswa kelas XII?',
+                            text: `${selected.length} siswa dipilih. Sistem hanya akan meluluskan siswa yang kelasnya berisi "XII".`,
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#2563eb',
+                            cancelButtonColor: '#6b7280',
+                            confirmButtonText: 'Ya, luluskan',
+                            cancelButtonText: 'Batal',
+                            customClass: {
+                                popup: 'rounded-2xl',
+                                confirmButton: 'rounded-xl px-4 py-2 font-semibold',
+                                cancelButton: 'rounded-xl px-4 py-2 font-semibold',
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                graduateForm.submit();
                             }
                         });
                     });

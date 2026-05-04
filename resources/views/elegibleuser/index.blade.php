@@ -103,6 +103,9 @@
                             <a href="{{ route('pencarian.eligible') }}" class="px-4 py-2 text-sm font-bold bg-yellow-300 nb-border-2 nb-shadow-sm rounded-xl transition-all">
                                 Eligible PTN
                             </a>
+                            <a href="{{ route('kelulusan.index') }}" class="px-4 py-2 text-sm font-bold text-[#1a1a2e] rounded-xl hover:bg-yellow-100 transition-all">
+                                Kelulusan
+                            </a>
                             <a href="{{ route('laporan.public.form') }}" class="px-4 py-2 text-sm font-bold text-[#1a1a2e] rounded-xl hover:bg-yellow-100 transition-all">
                                 Laporan
                             </a>
@@ -223,6 +226,12 @@
                         </svg>
                         <span class="text-[10px] font-bold text-[#1a1a2e]">Eligible</span>
                         <div class="nav-indicator w-1 h-1 rounded-full bg-[#1a1a2e]"></div>
+                    </a>
+                    <a href="{{ route('kelulusan.index') }}" class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-all">
+                        <svg class="w-5 h-5 text-[#1a1a2e]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v5l3 3m6-4a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="text-[10px] font-bold text-[#1a1a2e]">Lulus</span>
                     </a>
                     <a href="{{ route('laporan.public.form') }}" class="bottom-nav-item flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-all">
                         <svg class="w-5 h-5 text-[#1a1a2e]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

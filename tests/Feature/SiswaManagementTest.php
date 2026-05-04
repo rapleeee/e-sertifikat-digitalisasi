@@ -87,4 +87,36 @@ class SiswaManagementTest extends TestCase
         $this->assertDatabaseMissing('sertifikats', ['foto_sertifikat' => $fotoPath]);
         Storage::disk('public')->assertMissing($fotoPath);
     }
+
+    public function test_admin_can_graduate_selected_class_twelve_students(): void
+    {
+        $this->actingAsAdmin();
+
+        $kelasTwelve = Siswa::factory()->create([
+            'kelas' => 'XII RPL 1',
+            'status' => 'aktif',
+        ]);
+
+        $kelasEleven = Siswa::factory()->create([
+            'kelas' => 'XI RPL 1',
+            'status' => 'aktif',
+        ]);
+
+        $response = $this->post(route('siswa.bulk-graduate'), [
+            'ids' => [$kelasTwelve->id, $kelasEleven->id],
+        ]);
+
+        $response->assertRedirect(route('siswa.index'));
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('siswas', [
+            'id' => $kelasTwelve->id,
+            'status' => 'lulus',
+        ]);
+
+        $this->assertDatabaseHas('siswas', [
+            'id' => $kelasEleven->id,
+            'status' => 'aktif',
+        ]);
+    }
 }
