@@ -12,6 +12,8 @@ use Illuminate\View\View;
 
 class KelulusanController extends Controller
 {
+    private const TIMEZONE = 'Asia/Jakarta';
+
     private const SETTING_KEY = 'kelulusan_pengumuman_dibuka_pada';
 
     private const NOTE_KEY = 'kelulusan_catatan_pengambilan_skl';
@@ -104,7 +106,7 @@ class KelulusanController extends Controller
         $announcementAt = Carbon::createFromFormat(
             'Y-m-d H:i',
             "{$validated['announcement_date']} {$validated['announcement_time']}",
-            config('app.timezone')
+            self::TIMEZONE
         );
 
         AppSetting::setValue(self::SETTING_KEY, $announcementAt->format('Y-m-d H:i:s'));
@@ -119,7 +121,7 @@ class KelulusanController extends Controller
     {
         $value = AppSetting::valueFor(self::SETTING_KEY, self::DEFAULT_OPEN_AT);
 
-        return Carbon::parse($value ?: self::DEFAULT_OPEN_AT, config('app.timezone'));
+        return Carbon::parse($value ?: self::DEFAULT_OPEN_AT, self::TIMEZONE);
     }
 
     private function graduationNote(): string
