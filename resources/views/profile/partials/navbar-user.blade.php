@@ -26,6 +26,9 @@
                 <a href="{{ route('laporan.public.form') }}" class="px-4 py-1.5 text-sm lg:text-base font-bold text-black uppercase tracking-wide border-2 border-transparent hover:border-black hover:bg-white transition-all">
                     Laporan
                 </a>
+                <a href="{{ route('laporan.track') }}" class="px-4 py-1.5 text-sm lg:text-base font-bold text-black uppercase tracking-wide border-2 border-transparent hover:border-black hover:bg-white transition-all">
+                    Lacak Laporan
+                </a>
             </div>
 
             <!-- Mobile Menu Button -->
@@ -63,6 +66,9 @@
             </a> --}}
             <a href="{{ route('laporan.public.form') }}" class="block px-4 py-3 font-bold text-black uppercase tracking-wide border-2 border-black bg-white hover:bg-black hover:text-white transition-colors">
                 Laporan
+            </a>
+            <a href="{{ route('laporan.track') }}" class="block px-4 py-3 font-bold text-black uppercase tracking-wide border-2 border-black bg-white hover:bg-black hover:text-white transition-colors">
+                Lacak Laporan
             </a>
         </div>
     </div>

@@ -12,6 +12,7 @@ class Laporan extends Model
     protected $fillable = [
         'nama',
         'email',
+        'tracking_code',
         'nis',
         'subject',
         'status',

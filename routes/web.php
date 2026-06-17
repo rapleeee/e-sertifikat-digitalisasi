@@ -29,6 +29,7 @@ Route::get('/pencarian-eligible/test', function () {
 
 Route::get('/laporan', [LaporanController::class, 'publicForm'])->name('laporan.public.form');
 Route::post('/laporan', [LaporanController::class, 'publicStore'])->name('laporan.public.store');
+Route::get('/laporan/track', [LaporanController::class, 'trackForm'])->name('laporan.track');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard accessible by all authenticated users

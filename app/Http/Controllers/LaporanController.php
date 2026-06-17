@@ -8,6 +8,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\LaporanTrackingCodeMail;
 
 class LaporanController extends Controller
 {
@@ -28,9 +31,12 @@ class LaporanController extends Controller
             'message' => ['required', 'string', 'max:5000'],
         ]);
 
+        $trackingCode = 'TRK-PST-' . strtoupper(Str::random(8));
+
         $laporan = Laporan::create([
             'nama' => $data['nama'],
             'email' => $data['email'],
+            'tracking_code' => $trackingCode,
             'nis' => $data['nis'] ?? null,
             'subject' => $data['subject'] ?? null,
             'status' => 'open',
@@ -43,9 +49,27 @@ class LaporanController extends Controller
             'message' => $data['message'],
         ]);
 
+        try {
+            Mail::to($laporan->email)->send(new LaporanTrackingCodeMail($laporan));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send tracking code email: ' . $e->getMessage());
+        }
+
         return redirect()
             ->route('laporan.public.form')
-            ->with('success', 'Laporan kamu sudah terkirim. Admin akan meninjau laporan tersebut.');
+            ->with('success', 'Laporan kamu sudah terkirim. Kode pelacakan telah dikirim ke email kamu (' . $laporan->email . ').');
+    }
+
+    public function trackForm(Request $request): View
+    {
+        $laporan = null;
+        $code = $request->query('code');
+
+        if ($code) {
+            $laporan = Laporan::with(['messages.sender'])->where('tracking_code', $code)->first();
+        }
+
+        return view('laporan.track', compact('laporan', 'code'));
     }
 
     // ====== Admin ======
