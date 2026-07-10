@@ -131,6 +131,7 @@ Route::get(
 )->name('sertifikat.public.show')->middleware('throttle:60,1');
 
 Route::get('/sertifikat/{sertifikat}/kartu', [SertifikatController::class, 'card'])->name('sertifikat.card');
+Route::get('/sertifikat/{sertifikat}/verifikasi', [SertifikatController::class, 'verifikasi'])->name('sertifikat.verifikasi');
 Route::post(
     '/api/sertifikat/verify',
     [SertifikatController::class, 'verify']

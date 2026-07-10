@@ -680,6 +680,13 @@ class SertifikatController extends Controller
         return view('sertifikat.card', compact('sertifikat'));
     }
 
+    public function verifikasi(Sertifikat $sertifikat)
+    {
+        $sertifikat->load('siswa');
+
+        return view('sertifikat.verifikasi', compact('sertifikat'));
+    }
+
     public function verify(Request $request): JsonResponse
     {
         $request->validate(['identifier' => 'required|string']);

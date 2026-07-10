@@ -8,6 +8,8 @@
     <title>Cari Sertifikat - Certisat</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>if(typeof pdfjsLib !== 'undefined') pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
     <style>
         .brutal-shadow { box-shadow: 5px 5px 0px 0px #000; }
         .brutal-shadow:hover { box-shadow: 3px 3px 0px 0px #000; transform: translate(2px, 2px); }
@@ -678,14 +680,23 @@
                     : '-';
 
                 const hasPhoto = !!cert.foto_sertifikat;
+                const isPdfFile = hasPhoto && cert.foto_sertifikat.toLowerCase().endsWith('.pdf');
 
                 const photoSection = hasPhoto
-                    ? `
+                    ? isPdfFile
+                        ? `
+                        <div class="border-[2px] border-black bg-gray-50 flex items-center justify-center" style="min-height:200px;max-height:300px;overflow:hidden;">
+                            <canvas id="modal-pdf-canvas" style="max-width:100%;max-height:300px;"></canvas>
+                            <p id="modal-pdf-loading" class="text-xs text-gray-500 font-medium p-4">Memuat preview...</p>
+                        </div>
+                    `
+                        : `
                         <div class="neumorphism rounded-2xl p-6">
                             <img src="{{ asset('storage') }}/${cert.foto_sertifikat}" 
                                 alt="Foto Sertifikat" 
                                 class="max-w-full h-auto rounded-xl mx-auto shadow-2xl hover:shadow-blue-500/25 transition-shadow duration-500"
-                                style="max-height: 300px;">
+                                style="max-height: 300px;"
+                                onerror="this.style.display='none';this.insertAdjacentHTML('afterend','<p class=\'text-xs text-gray-400 text-center py-4\'>Preview tidak tersedia</p>')">
                         </div>
                     `
                     : `
@@ -715,7 +726,8 @@
                                 ${hasPhoto ? `
                                     <a
                                         href="{{ asset('storage') }}/${cert.foto_sertifikat}"
-                                        download
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                         class="inline-flex items-center px-4 py-2 text-xs sm:text-sm font-black uppercase tracking-wide border-[3px] border-black bg-white text-black hover:bg-amber-100 transition-colors"
                                     >
                                         Unduh sertifikat
@@ -745,10 +757,35 @@
                     </div>
                 `;
                 
-	                // Show modal (tanpa animasi lebay)
-	                const modal = certificateModal;
-	                modal.classList.remove('opacity-0', 'invisible');
-	                modal.classList.add('opacity-100', 'visible');
+                // Show modal (tanpa animasi lebay)
+                const modal = certificateModal;
+                modal.classList.remove('opacity-0', 'invisible');
+                modal.classList.add('opacity-100', 'visible');
+
+                // Render PDF preview via PDF.js (cross-browser)
+                if (isPdfFile && typeof pdfjsLib !== 'undefined') {
+                    const pdfUrl = `{{ asset('storage') }}/${cert.foto_sertifikat}`;
+                    pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+                        return pdf.getPage(1);
+                    }).then(function(page) {
+                        const canvas = document.getElementById('modal-pdf-canvas');
+                        const loading = document.getElementById('modal-pdf-loading');
+                        if (!canvas) return;
+                        const viewport = page.getViewport({ scale: 1 });
+                        const scale = Math.min(600 / viewport.width, 300 / viewport.height);
+                        const scaled = page.getViewport({ scale });
+                        canvas.width = scaled.width;
+                        canvas.height = scaled.height;
+                        const ctx = canvas.getContext('2d');
+                        page.render({ canvasContext: ctx, viewport: scaled }).promise.then(function() {
+                            if (loading) loading.remove();
+                            canvas.style.display = 'block';
+                        });
+                    }).catch(function() {
+                        const loading = document.getElementById('modal-pdf-loading');
+                        if (loading) loading.textContent = 'Preview tidak tersedia';
+                    });
+                }
             }
             
             // Event listeners
@@ -797,19 +834,7 @@
             });
 
             window.openCardInModal = function(url) {
-                const iframe = document.createElement('iframe');
-                iframe.src = url;
-                iframe.style.width = '100%';
-                iframe.style.height = '600px';
-                iframe.style.border = 'none';
-                iframe.style.borderRadius = '0.75rem';
-                
-                modalContent.innerHTML = '';
-                modalContent.appendChild(iframe);
-                
-                const modal = certificateModal;
-                modal.classList.remove('opacity-0', 'invisible');
-                modal.classList.add('opacity-100', 'visible');
+                window.open(url, '_blank', 'noopener,noreferrer');
             };
 
             window.downloadSertifikat = function(url, filename = false) {
