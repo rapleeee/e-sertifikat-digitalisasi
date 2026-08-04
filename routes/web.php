@@ -28,7 +28,7 @@ Route::get('/pencarian-eligible/test', function () {
 })->name('pencarian.eligible.test');
 
 Route::get('/laporan', [LaporanController::class, 'publicForm'])->name('laporan.public.form');
-Route::post('/laporan', [LaporanController::class, 'publicStore'])->name('laporan.public.store');
+Route::post('/laporan', [LaporanController::class, 'publicStore'])->name('laporan.public.store')->middleware('throttle:3,60');
 Route::get('/laporan/track', [LaporanController::class, 'trackForm'])->name('laporan.track');
 
 Route::middleware(['auth', 'verified'])->group(function () {

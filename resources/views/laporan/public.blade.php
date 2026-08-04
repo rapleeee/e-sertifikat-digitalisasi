@@ -8,6 +8,7 @@
     <style>
         .brutal-shadow { box-shadow: 5px 5px 0px 0px #000; }
     </style>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body class="bg-amber-50 text-black antialiased">
     @include('profile.partials.navbar-user')
@@ -109,9 +110,16 @@
                     </div>
 
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-gray-500">
-                        <p class="font-medium">
-                            Pastikan email yang kamu isi aktif karena admin akan mengirim balasan dan hasil tindak lanjut laporan ke email tersebut.
-                        </p>
+                        <div class="space-y-3">
+                            <p class="font-medium">
+                                Pastikan email yang kamu isi aktif karena admin akan mengirim balasan dan hasil tindak lanjut laporan ke email tersebut.
+                            </p>
+                            <!-- Google reCAPTCHA -->
+                            <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}"></div>
+                            @error('g-recaptcha-response')
+                                <p class="mt-1 text-xs text-red-600 font-bold">{{ $message }}</p>
+                            @enderror
+                        </div>
                         <button
                             type="submit"
                             class="inline-flex items-center justify-center px-6 py-2.5 border-[3px] border-black bg-orange-500 text-white text-sm font-black uppercase tracking-wide hover:bg-orange-600 transition-colors"

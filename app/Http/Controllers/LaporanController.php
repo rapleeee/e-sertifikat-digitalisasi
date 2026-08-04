@@ -29,6 +29,17 @@ class LaporanController extends Controller
             'nis' => ['nullable', 'string', 'max:50'],
             'subject' => ['nullable', 'string', 'max:255'],
             'message' => ['required', 'string', 'max:5000'],
+            'g-recaptcha-response' => ['required', function ($attribute, $value, $fail) {
+                $response = \Illuminate\Support\Facades\Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+                    'secret' => config('services.recaptcha.secret_key'),
+                    'response' => $value,
+                    'remoteip' => request()->ip(),
+                ]);
+                
+                if (! $response->json('success')) {
+                    $fail('Verifikasi reCAPTCHA gagal. Silakan coba lagi.');
+                }
+            }],
         ]);
 
         $trackingCode = 'TRK-PST-' . strtoupper(Str::random(8));
